@@ -1,0 +1,42 @@
+# Defines a Singularity container with TensorFlow pre-installed
+#
+
+BootStrap: docker
+From: ppc64le/ubuntu
+
+%pre
+  mkdir -p ${SINGULARITY_ROOTFS}/opt/cray
+  mkdir ${SINGULARITY_ROOTFS}/work
+  mkdir ${SINGULARITY_ROOTFS}/ccs
+
+%setup
+  cp cudnn-8.0-linux-ppc64le-v5.1.tgz ${SINGULARITY_ROOTFS}
+  cp cuda_installer.deb ${SINGULARITY_ROOTFS} 
+  cp configure_tensorflow ${SINGULARITY_ROOTFS}
+  cp long-string.workaround ${SINGULARITY_ROOTFS}
+  cp -r /usr/lib/nvidia ${SINGULARITY_ROOTFS}
+  cp bazel.bazelrc ${SINGULARITY_ROOTFS}
+
+  # Hack because bazel spins up daemons that confuse singularity during shutdown resulting is leftover files
+  pkill -f bazel* 
+  rm -rf /tmp/singularity*
+  rm -rf /root/.cache/bazel
+
+%post
+  export PATH=$PATH:/bin:/sbin:/usr/bin:/usr/sbin
+   . ./long-string.workaround
+
+%runscript
+  export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-ppc64el
+  export JRE_HOME=${JAVA_HOME}/jre
+  export CLASSPATH=.:${JAVA_HOME}/lib:${JRE_HOME}/lib
+  export PATH=${JAVA_HOME}/bin:$PATH
+  export PATH=/usr/local/cuda/bin:$PATH
+  export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64:/usr/lib/nvidia"
+  export CUDA_HOME=/usr/local/cuda
+  export PROTOC=/usr/local/bin/protoc
+  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
+  export GRPC_JAVA_PLUGIN=/usr/local/bin/protoc-gen-grpc-java
+  export PATH=$PATH:/usr/local/bin
+
+  exec /usr/bin/python "$@"

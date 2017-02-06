@@ -1,0 +1,181 @@
+    apt-get install 
+    add-apt-repository ppa:openjdk-r/ppa
+    add-apt-repository -y ppa:openjdk-r/ppa
+    apt-get update
+    apt-get -y install wget curl libcurl4-gnutls-dev maven libtool autoconf libopenblas-base libopenblas-dev openjdk-8-jdk g++ zip zlib1g-dev unzip git python-numpy python-dev python-pip python-setuptools python-scipy python-nose
+    update-alternatives --config java
+    update-alternatives --config java --set /usr/lib/jvm/java-8-openjdk-ppc64el/jre/bin/java
+    update-alternatives --set java /usr/lib/jvm/java-8-openjdk-ppc64el/jre/bin/java
+
+    export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-ppc64el
+    export JRE_HOME=${JAVA_HOME}/jre
+    export CLASSPATH=.:${JAVA_HOME}/lib:${JRE_HOME}/lib
+    export PATH=${JAVA_HOME}/bin:$PATH
+
+    wget -O cuda_installer.deb https://developer.nvidia.com/compute/cuda/8.0/prod/local_installers/cuda-repo-ubuntu1604-8-0-local-ga2_8.0.54-1_ppc64el-deb
+    dpkg -i cuda_installer.deb
+    apt-get update
+    apt-get -y install cuda-toolkit-8-0
+
+    pip install --upgrade pip
+
+    tar xvzf cudnn-8.0-linux-ppc64le-v5.1.tgz
+    CUDNN_PATH=cuda/targets/ppc64le-linux/
+    cp -P $CUDNN_PATH/include/cudnn.h /usr/local/cuda/include
+    cp -P $CUDNN_PATH/lib/libcudnn* /usr/local/cuda/lib64
+    chmod a+r /usr/local/cuda/include/cudnn.h /usr/local/cuda/lib64/libcudnn*
+    apt-get -y install libcupti-dev
+
+    cp -r nvidia /usr/lib
+
+    export PATH=/usr/local/cuda/bin:$PATH
+    export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/cuda/lib64:/usr/local/lib:/usr/local/cuda/extras/CUPTI/lib64:/usr/lib/nvidia"
+    export CUDA_HOME=/usr/local/cuda
+
+    # Bazel must have exact protobuf version, e.g. 3.0.1 doesn't work currently
+    # the v3.0.0 taged version is busted and can't download gtest so we use the tarball
+    wget https://github.com/google/protobuf/releases/download/v3.0.0/protobuf-cpp-3.0.0.tar.gz
+    tar xfv protobuf-cpp-3.0.0.tar.gz
+    cd protobuf-3.0.0
+    ./autogen.sh
+    ./configure
+    make -j 20
+    make install
+    export PROTOC=/usr/local/bin/protoc
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
+
+    # grpc-java must be built against protobuf 3.0.0 to match bazel
+    cd /
+    git clone https://github.com/grpc/grpc-java.git
+    cd grpc-java
+    git checkout tags/v1.0.0
+    git checkout master -- compiler/build.gradle # Add power support which doesn't exist in v1.0.0
+    CXXFLAGS="-std=c++11" LDFLAGS="-rdynamic -L/grpc-java/protobuf_build/lib" ./gradlew java_pluginExecutable -Pprotoc=/grpc-java/protobuf_build/bin/protoc
+    cp compiler/build/exe/java_plugin/protoc-gen-grpc-java /usr/local/bin
+    export GRPC_JAVA_PLUGIN=/usr/local/bin/protoc-gen-grpc-java
+    cd /
+
+    # bazelrc stops the bazel daemon from spinning up and confusing singularity
+    # For some reason tensor flow doesn't configure correctly if this is in place so we shut the server down manually
+#    cp /bazel.bazelrc /etc
+
+    git clone https://github.com/bazelbuild/bazel.git
+    cd bazel
+    ./compile.sh
+    cp /bazel/output/bazel /usr/local/bin
+
+    export PATH=$PATH:/usr/local/bin
+
+    ####
+    ## Tensorflow
+    ####
+    cd /
+    git clone https://github.com/tensorflow/tensorflow
+    cd tensorflow
+    cp /configure_tensorflow .
+    ./configure_tensorflow
+
+    bazel build -c opt --config=cuda //tensorflow/tools/pip_package:build_pip_package
+    bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
+    pip install /tmp/tensorflow_pkg/tensorflow-*.whl
+
+    ####
+    ## Theano
+    ####
+
+    # build gpuarray
+    cd /
+    apt-get -y install cmake
+    pip install Cython
+    git clone https://github.com/Theano/libgpuarray.git
+    cd libgpuarray
+    mkdir build
+    cd build
+    cmake .. -DCMAKE_BUILD_TYPE=Release
+    make
+    make install
+    cd ..
+    python setup.py build
+    python setup.py install
+    ldconfig
+
+    pip install Theano
+
+    ####
+    ## Keras
+    ####
+    pip install keras
+
+    ####
+    ## Extras
+    ####
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/x86_64-linux-gnu
+    apt-get -y install hdf5-helpers libhdf5-10 libhdf5-cpp-11 libhdf5-dev libhdf5-serial-dev pkg-config clang
+    pip install scikit-learn
+    pip install h5py
+
+    ####
+    ## NEON
+    ####
+    cd /
+    git clone https://github.com/NervanaSystems/neon.git
+    cd neon && make sysinstall
+
+    ####
+    ## PyTorch
+    ####
+    cd /
+    apt-get -y install python-cffi
+    git clone https://github.com/pytorch/pytorch.git
+    cd pytorch
+    pip install -r requirements.txt
+    python setup.py install    
+
+    ####
+    ## Caffe
+    ####
+    cd /
+    apt-get -y install libleveldb-dev libsnappy-dev libopencv-dev libgflags-dev libgoogle-glog-dev liblmdb-dev libatlas-base-dev
+    apt-get -y install --no-install-recommends libboost-all-dev
+    git clone https://github.com/BVLC/caffe.git
+    cd caffe
+    mkdir build
+    cd build
+    cmake ..
+    make all
+    make install
+
+    ####
+    ## CNTK - wont work as Power isn't supported: https://github.com/Microsoft/CNTK/issues/1318
+    ####
+
+    ####
+    ## mxnet
+    ####
+    cd /
+    apt-get -y install libatlas-base-dev libopencv-dev
+    # Get MXNet source code
+    git clone https://github.com/dmlc/mxnet.git /mxnet --recursive
+
+    # Move to source code parent directory
+    cd /mxnet
+    cp make/config.mk .
+    echo "USE_BLAS=openblas" >>config.mk
+    echo "ADD_CFLAGS += -I/usr/include/openblas" >>config.mk
+    echo "ADD_LDFLAGS += -lopencv_core -lopencv_imgproc -lopencv_imgcodecs" >>config.mk
+    echo "USE_CUDA=1" >>config.mk
+    echo "USE_CUDA_PATH=/usr/local/cuda" >>config.mk
+    echo "USE_CUDNN=1" >>config.mk
+    cd /mxnet/setup-utils
+    bash install-mxnet-ubuntu-python.sh
+    # It has automatically messed with ~/.bashrc...why would it do this by default???
+
+    pip install graphviz
+    pip install Jupyter
+
+    # Make sure bazel is shutdown so it doesn't stop singularity from cleaning exiting
+    bazel shutdown
+    sleep 30
+    pkill -f bazel
+    sleep 30
+    ps aux | grep bazel

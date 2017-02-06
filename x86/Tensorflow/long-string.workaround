@@ -1,0 +1,97 @@
+    apt-get update
+    apt-get -y install wget curl maven libtool autoconf openjdk-8-jdk g++ zip zlib1g-dev unzip git python-numpy python-dev python-pip python-setuptools
+
+#    wget http://developer.download.nvidia.com/compute/cuda/7.5/Prod/local_installers/cuda-repo-ubuntu1504-7-5-local_7.5-18_amd64.deb
+#    dpkg -i cuda-repo-ubuntu1504-7-5-local_7.5-18_amd64.deb
+#    apt-get update
+#    apt-get -y install cuda-toolkit-7-5
+
+    apt-get -y install gcc-4.8 g++-4.8
+	
+    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 51
+    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 50
+    update-alternatives --config gcc
+    update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 51
+    update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-5 50
+    update-alternatives --config g++
+
+    wget http://developer.download.nvidia.com/compute/cuda/7.5/Prod/local_installers/cuda_7.5.18_linux.run
+    sh cuda_7.5.18_linux.run --silent --toolkit --override --no-opengl-libs
+    rm -rf cuda_7.5.18_linux.run
+
+    pip install --upgrade pip
+
+    tar xvzf cudnn-7.5-linux-x64-v5.1.tgz 
+    cp -P cuda/include/cudnn.h /usr/local/cuda/include
+    cp -P cuda/lib64/libcudnn* /usr/local/cuda/lib64
+    chmod a+r /usr/local/cuda/include/cudnn.h /usr/local/cuda/lib64/libcudnn*
+
+    # Copy over driver libraries
+    cp -r /nvidia /usr/lib/
+
+    export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+    export PATH=$PATH:$JAVA_HOME/bin
+
+    # copy nvidia driver libraries
+    cp -r /nvidia /usr/lib
+
+    export PATH=/usr/local/cuda/bin:$PATH
+    export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64:/usr/lib/nvidia"
+    export CUDA_HOME=/usr/local/cuda
+
+    # On Cray we can't write to /root which is where .gradle wishes to write by default...ignorining $HOME for some reason
+    export GRADLE_USER_HOME=$HOME
+
+    # Bazel must have exact protobuf version, e.g. 3.0.1 doesn't work currently
+    # the v3.0.0 taged version is busted and can't download gtest so we use the tarball
+    wget https://github.com/google/protobuf/releases/download/v3.0.0/protobuf-cpp-3.0.0.tar.gz
+    tar xfv protobuf-cpp-3.0.0.tar.gz
+    cd protobuf-3.0.0
+    ./autogen.sh
+    ./configure
+    make -j 20
+    make install
+    export PROTOC=/usr/local/bin/protoc
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
+
+    # grpc-java must be built against protobuf 3.0.0 to match bazel
+    cd /
+    git clone https://github.com/grpc/grpc-java.git
+    cd grpc-java
+    git checkout tags/v1.0.0
+    CXXFLAGS="-std=c++11" LDFLAGS="-rdynamic -L/grpc-java/protobuf_build/lib" ./gradlew java_pluginExecutable -Pprotoc=/grpc-java/protobuf_build/bin/protoc
+    cp compiler/build/exe/java_plugin/protoc-gen-grpc-java /usr/local/bin
+    export GRPC_JAVA_PLUGIN=/usr/local/bin/protoc-gen-grpc-java
+    cd /
+
+    # bazelrc stops the bazel daemon from spinning up and confusing singularity
+    # For some reason tensor flow doesn't configure correctly if this is in place so we shut the server down manually
+#    cp /bazel.bazelrc /etc
+
+    git clone https://github.com/bazelbuild/bazel.git
+    cd bazel
+    ./compile.sh
+    cp /bazel/output/bazel /usr/local/bin
+
+    export PATH=$PATH:/usr/local/bin
+
+    cd /
+    git clone https://github.com/tensorflow/tensorflow
+    cd tensorflow
+    cp /configure_tensorflow .
+    ./configure_tensorflow
+
+    bazel build -c opt --config=cuda //tensorflow/tools/pip_package:build_pip_package
+    bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
+    pip install /tmp/tensorflow_pkg/tensorflow-*.whl
+
+    pip install keras
+    pip install scikit-learn
+
+    # Make sure bazel is shutdown so it doesn't stop singularity from cleanly exiting
+    bazel shutdown
+    sleep 10
+    pkill -f bazel
+    ps aux | grep bazel
+
+

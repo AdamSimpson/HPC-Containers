@@ -1,0 +1,24 @@
+BootStrap: docker
+From: ppc64le/ubuntu
+IncludeCmd: yes
+
+%setup
+  mkdir ${SINGULARITY_ROOTFS}/driver_lib
+  cp -r /usr/lib/nvidia/* ${SINGULARITY_ROOTFS}/driver_lib
+  cp ./cuda_installer.deb ${SINGULARITY_ROOTFS}
+  mkdir ${SINGULARITY_ROOTFS}/driver_bin
+  cp /usr/bin/nvidia-* ${SINGULARITY_ROOTFS}/driver_bin
+%post
+  export PATH=$PATH:/bin:/sbin:/usr/bin:/usr/sbin
+  apt-get update
+  apt-get -y install wget vim binutils dpkg-dev
+
+  wget -O cuda_installer.deb https://developer.nvidia.com/compute/cuda/8.0/prod/local_installers/cuda-repo-ubuntu1604-8-0-local-ga2_8.0.54-1_ppc64el-deb
+  dpkg -i /cuda_installer.deb
+  apt-get update
+  apt-get -y install cuda-toolkit-8-0
+
+  rm /cuda_installer.deb
+
+  cp /driver_lib/* /usr/lib
+  cp /driver_bin/* /usr/bin

@@ -1,0 +1,3 @@
+#!/bin/bash
+
+./configure <<< $'\n \n \n \n \n \n \n \n y\n \n \n \n \n \n 3.5\n'
