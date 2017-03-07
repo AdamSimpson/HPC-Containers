@@ -17,6 +17,7 @@ IncludeCmd: yes
   cp /usr/lib64/libxml2.so ${SINGULARITY_ROOTFS}
   cp /usr/lib64/libcrypto.so.0.9.8 ${SINGULARITY_ROOTFS}
   cp /usr/lib64/libssl.so.0.9.8 ${SINGULARITY_ROOTFS}
+  cp ./equivs-cray-openmpi ${SINGULARITY_ROOTFS}
 
 %post
   export PATH=$PATH:/bin:/sbin:/usr/bin:/usr/sbin
@@ -46,12 +47,17 @@ IncludeCmd: yes
   ./autogen.pl
   ./configure --enable-shared --without-tm --without-slurm --with-alps --without-verbs-sshmem --with-ugni --disable-getpwuid --with-udreg --disable-dlopen --without-psm --without-psm2 --without-mxm --disable-mpi-thread-multiple --without-sqlite3 --enable-vt --with-cray_pmi=/opt/cray/pmi/5.0.10-1.0000.11050.179.3.gem --without-verbs
 
-  /bin/bash
   make -j 16
   make install
 
   # Not sure why this hack is needed
   chmod -R 755 /usr/local/share
+
+  # Create dummy package entry
+  cd /
+  apt-get -y install equivs
+  equivs-build /equivs-cray-openmpi
+  dpkg -i cray-openmpi_1.0_all.deb
 
 %test
   export PATH=$PATH:/bin:/sbin:/usr/bin:/usr/sbin
