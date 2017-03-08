@@ -2,13 +2,21 @@
 
 # COMPILE AND RUN OF EXECUTABLE MUST BE SEPERATE!!!!
 
+echo $LD_LIBRARY_PATH
+
 export PATH=$PATH:/bin:/sbin:/usr/bin:/usr/sbin
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib:/usr/local/lib/openmpi:/usr/lib:/usr/lib64:/:/usr/local/share
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CRAY_LD_LIBRARY_PATH:/opt/cray/wlm_detect/1.0-1.0502.64649.2.2.gem/lib64
 
-#export MCA_OMPI_btl=ugni
+export OMPI_MCA_btl=ugni,self
+
+export OMPI_MCA_btl_base_verbose=1
+
+export OMPI_MCA_mpi_leave_pinned=0
+export OMPI_MCA_mpi_leave_pinned_pipeline=0
 
 #mpicc helloMPI.c
+#ldd ./a.out
 
 #gcc -I/usr/include -L/usr/lib -L/usr/lib/openmpi testalps.c -lalps -lalpsutil -lalpslli -lmpi
 
@@ -30,8 +38,10 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CRAY_LD_LIBRARY_PATH:/opt/cray/wlm_dete
 
 #ldd ./container.out
 
-#./a.out
+#ompi_info
+
+./a.out
 
 #ldd ./container.out
 
-./container.out
+#./container.out
