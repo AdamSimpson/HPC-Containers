@@ -3,11 +3,17 @@ From: ubuntu:latest
 IncludeCmd: yes
 
 %pre
+  # Mount point for Cray files needed for MPI
   mkdir -p ${SINGULARITY_ROOTFS}/opt/cray
-  mkdir ${SINGULARITY_ROOTFS}/work
-  mkdir ${SINGULARITY_ROOTFS}/ccs
+
+  # Mount point for Cray files needed for ALSP runtime
   mkdir -p ${SINGULARITY_ROOTFS}/var/spool/alps
   mkdir -p ${SINGULARITY_ROOTFS}/var/opt/cray
+
+  # Mount point for home and work directories
+  mkdir ${SINGULARITY_ROOTFS}/work
+  mkdir ${SINGULARITY_ROOTFS}/ccs
+
 %setup
   cp ./helloMPI.c ${SINGULARITY_ROOTFS}
 
@@ -20,17 +26,12 @@ IncludeCmd: yes
   cp ./equivs-cray-openmpi ${SINGULARITY_ROOTFS}
 
 %post
+  # Runtime environment variables to be set
   export PATH=$PATH:/bin:/sbin:/usr/bin:/usr/sbin
-  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib:/usr/local/lib/openmpi:/usr/lib:/usr/lib64
+  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib:/usr/local/lib/openmpi:/usr/lib
 
   apt-get update
-  apt-get -y install pax-utils strace ltrace libssl-dev zlib1g zlib1g-dev pkg-config wget git vim binutils dpkg-dev libtool automake autoconf flex ssh expat libxmlrpc-epi-dev libexpat1-dev #libxml2 libxml2-dev
-
-  mkdir /usr/lib64
-  cp /libxml2.la    /usr/lib64
-  cp /libxml2.so    /usr/lib64
-  cp /libcrypto.so.0.9.8 /usr/lib
-  cp /libssl.so.0.9.8 /usr/lib
+  apt-get -y install apt-utils pax-utils strace ltrace libssl-dev zlib1g zlib1g-dev pkg-config wget git vim binutils dpkg-dev libtool automake autoconf flex ssh expat libxmlrpc-epi-dev libexpat1-dev libxml2 libxml2-dev
 
   mkdir -p /etc/opt/cray/release/
   cp /clerelease /etc/opt/cray/release
