@@ -15,20 +15,27 @@ IncludeCmd: yes
   mkdir ${SINGULARITY_ROOTFS}/ccs
 
 %setup
-  cp ./helloMPI.c ${SINGULARITY_ROOTFS}
-
+  # OpenMPI quiries the CLE release file
   cp /etc/opt/cray/release/clerelease ${SINGULARITY_ROOTFS}
 
-  cp /usr/lib64/libxml2.la ${SINGULARITY_ROOTFS}
-  cp /usr/lib64/libxml2.so ${SINGULARITY_ROOTFS}
-  cp /usr/lib64/libcrypto.so.0.9.8 ${SINGULARITY_ROOTFS}
-  cp /usr/lib64/libssl.so.0.9.8 ${SINGULARITY_ROOTFS}
+  # Copy in dummy package equivs file
   cp ./equivs-cray-openmpi ${SINGULARITY_ROOTFS}
 
+  # wlm_detect is in /usr/lib64/pkgconfig which isnt exposed to the container
+  SYSUTILS_DEFAULT_DIR=`readlink -f /opt/cray/sysutils/default`
+  WLM_DEFAULT_DIR=`readlink -f /opt/cray/wlm_detect/default`
+  PMI_DEFAULT_DIR=`readlink -f /opt/cray/pmi/default`
+
+  # Symlinks cant always be followed in the container as the links arent mounted so we place them in /environment
+  # which singularity currently sources
+  echo "" >> ${SINGULARITY_ROOTFS}/environment
+  echo "export PATH=$PATH:/bin:/sbin:/usr/bin:/usr/sbin" >> ${SINGULARITY_ROOTFS}/environment
+  echo "export LD_LIBRARY_PATH=${CRAY_LD_LIBRARY_PATH}:${LD_LIBRARY_PATH}:${CRAY_LD_LIBRARY_PATH}:${WLM_DEFAULT_DIR}/lib64" >> ${SINGULARITY_ROOTFS}/environment
+  echo "export PKG_CONFIG_PATH=${WLM_DEFAULT_DIR}/lib64/pkgconfig/:${SYSUTILS_DEFAULT_DIR}/lib64/pkgconfig/:${PKG_CONFIG_PATH}" >> ${SINGULARITY_ROOTFS}/environment
+
 %post
-  # Runtime environment variables to be set
-  export PATH=$PATH:/bin:/sbin:/usr/bin:/usr/sbin
-  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib:/usr/local/lib/openmpi:/usr/lib
+  # Environment isnt sourced in post but contains variables we need set
+  . environment
 
   apt-get update
   apt-get -y install apt-utils pax-utils strace ltrace libssl-dev zlib1g zlib1g-dev pkg-config wget git vim binutils dpkg-dev libtool automake autoconf flex ssh expat libxmlrpc-epi-dev libexpat1-dev libxml2 libxml2-dev
@@ -36,17 +43,11 @@ IncludeCmd: yes
   mkdir -p /etc/opt/cray/release/
   cp /clerelease /etc/opt/cray/release
 
-  # For some reason wlm_detect is in /usr/lib64/pkgconfig which isnt exposed to the container
-  # Also /opt/cray/.../default is a symlink which isnt exposed
-  export PKG_CONFIG_PATH=/opt/cray/wlm_detect/1.0-1.0502.64649.2.2.gem/lib64/pkgconfig/:/opt/cray/sysutils/1.0-1.0502.60492.1.1.gem/lib64/pkgconfig/:$PKG_CONFIG_PATH
-
-  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CRAY_LD_LIBRARY_PATH:/opt/cray/wlm_detect/1.0-1.0502.64649.2.2.gem/lib64
-
   git clone https://github.com/open-mpi/ompi.git
   cd ompi
   git checkout tags/v2.0.1
   ./autogen.pl
-  ./configure --enable-shared --without-tm --without-slurm --with-alps --without-verbs-sshmem --with-ugni --disable-getpwuid --with-udreg --disable-dlopen --without-psm --without-psm2 --without-mxm --disable-mpi-thread-multiple --without-sqlite3 --enable-vt --with-cray_pmi=/opt/cray/pmi/5.0.10-1.0000.11050.179.3.gem --without-verbs
+  ./configure --enable-shared --without-tm --without-slurm --with-alps --without-verbs-sshmem --with-ugni --disable-getpwuid --with-udreg --disable-dlopen --without-psm --without-psm2 --without-mxm --disable-mpi-thread-multiple --without-sqlite3 --enable-vt --with-cray_pmi=${PMI_DEFAULT_DIR} --without-verbs
 
   make -j 16
   make install
@@ -59,12 +60,3 @@ IncludeCmd: yes
   apt-get -y install equivs
   equivs-build /equivs-cray-openmpi
   dpkg -i cray-openmpi_1.0_all.deb
-
-%test
-  export PATH=$PATH:/bin:/sbin:/usr/bin:/usr/sbin
-  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib:/usr/local/lib/openmpi:/usr/lib:/usr/lib64
-  export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CRAY_LD_LIBRARY_PATH:/opt/cray/wlm_detect/1.0-1.0502.64649.2.2.gem/lib64
-  mpicc helloMPI.c
-
-#$runscript
-  #exec ./a.out
