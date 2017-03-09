@@ -29,8 +29,9 @@ IncludeCmd: yes
   # Symlinks cant always be followed in the container as the links arent mounted so we place them in /environment
   # which singularity currently sources
   echo "" >> ${SINGULARITY_ROOTFS}/environment
+  echo "export PMI_DEFAULT_DIR=${PMI_DEFAULT_DIR}" >> ${SINGULARITY_ROOTFS}/environment
   echo "export PATH=$PATH:/bin:/sbin:/usr/bin:/usr/sbin" >> ${SINGULARITY_ROOTFS}/environment
-  echo "export LD_LIBRARY_PATH=${CRAY_LD_LIBRARY_PATH}:${LD_LIBRARY_PATH}:${CRAY_LD_LIBRARY_PATH}:${WLM_DEFAULT_DIR}/lib64" >> ${SINGULARITY_ROOTFS}/environment
+  echo "export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${CRAY_LD_LIBRARY_PATH}:${WLM_DEFAULT_DIR}/lib64:${SYSUTILS_DEFAULT_DIR}/lib64" >> ${SINGULARITY_ROOTFS}/environment
   echo "export PKG_CONFIG_PATH=${WLM_DEFAULT_DIR}/lib64/pkgconfig/:${SYSUTILS_DEFAULT_DIR}/lib64/pkgconfig/:${PKG_CONFIG_PATH}" >> ${SINGULARITY_ROOTFS}/environment
 
 %post
