@@ -3,8 +3,8 @@ Priority: optional
 Standards-Version: 3.9.2
 
 Package: cray-openmpi
-Provides: libopenmpi1.10, openmpi-bin(= 2.1), openmpi-common(= 2.1),libopenmpi-dev(= 2.1)
-Replaces: libopenmpi1.10, openmpi-bin(= 2.1), openmpi-common(= 2.1),libopenmpi-dev(= 2.1)
-Conflicts: libopenmpi1.10, openmpi-bin(= 2.1), openmpi-common(= 2.1),libopenmpi-dev(= 2.1)
+Provides: libopenmpi1.10, openmpi-bin(= 2.1), openmpi-common(= 2.1), libopenmpi-dev(= 2.1), mpi-default-bin, openmpi-checkpoint(= 2.1)
+Replaces: libopenmpi1.10, openmpi-bin(= 2.1), openmpi-common(= 2.1), libopenmpi-dev(= 2.1), mpi-default-bin, openmpi-checkpoint(= 2.1)
+Conflicts: libopenmpi1.10, openmpi-bin(= 2.1), openmpi-common(= 2.1), libopenmpi-dev(= 2.1), mpi-default-bin, openmpi-checkpoint(= 2.1)
 Architecture: all
 Description: Dummy OpenMPI package
