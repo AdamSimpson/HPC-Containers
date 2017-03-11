@@ -1,5 +1,5 @@
 BootStrap: docker
-From: ubuntu:latest
+From: ubuntu:xenial
 IncludeCmd: yes
 
 %pre
@@ -38,6 +38,9 @@ IncludeCmd: yes
   # Environment isnt sourced in post but contains variables we need set
   . environment
 
+  # Supress some messages from apt related to being in a minimal install
+  export DEBIAN_FRONTEND=noninteractive
+
   apt-get update
   apt-get -y install apt-utils pax-utils strace ltrace libssl-dev zlib1g zlib1g-dev pkg-config wget git vim binutils dpkg-dev libtool automake autoconf flex ssh expat libxmlrpc-epi-dev libexpat1-dev libxml2 libxml2-dev
 
@@ -53,11 +56,24 @@ IncludeCmd: yes
   make -j 16
   make install
 
-  # Not sure why this hack is needed
+  # Not sure why this is needed
   chmod -R 755 /usr/local/share
+  chmod -R 755 /usr/local/lib
 
   # Create dummy package entry
   cd /
   apt-get -y install equivs
   equivs-build /equivs-cray-openmpi
   dpkg -i cray-openmpi_1.0_all.deb
+
+  # Create symlinks to versioned libraries applicable to Ubuntu Xenial
+  # These are needed for ubuntu provided packages built against openmpi
+  ln -s /usr/local/lib/libmpi.so /usr/lib/libmpi.so.12
+  ln -s /usr/local/lib/libmpi.so /usr/lib/libmpi.so.12.0.2
+
+  # Install MPI4PY
+  apt-get -y install python-mpi4py
+
+  # Runtime OMPI flags needed on Cray
+  echo "export OMPI_MCA_mpi_leave_pinned=0" >> /environment
+  echo "export OMPI_MCA_mpi_leave_pinned_pipeline=0" >> /environment
