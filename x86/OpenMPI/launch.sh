@@ -2,21 +2,31 @@
 
 # COMPILE AND RUN OF EXECUTABLE MUST BE SEPERATE!!!!
 
-echo $LD_LIBRARY_PATH
+#echo $LD_LIBRARY_PATH
 
-export PATH=$PATH:/bin:/sbin:/usr/bin:/usr/sbin
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib:/usr/local/lib/openmpi:/usr/lib:/usr/lib64:/:/usr/local/share
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CRAY_LD_LIBRARY_PATH:/opt/cray/wlm_detect/1.0-1.0502.64649.2.2.gem/lib64
+#export PATH=$PATH:/bin:/sbin:/usr/bin:/usr/sbin
+#export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib:/usr/local/lib/openmpi:/usr/lib:/usr/lib64:/:/usr/local/share
+#export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CRAY_LD_LIBRARY_PATH:/opt/cray/wlm_detect/1.0-1.0502.64649.2.2.gem/lib64
+#export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/cray/sysutils/1.0-1.0502.60492.1.1.gem/lib64
 
-export OMPI_MCA_btl=ugni,self
+#export OMPI_MCA_btl=ugni,self
 
-export OMPI_MCA_btl_base_verbose=1
+#export OMPI_MCA_btl_base_verbose=1
 
 export OMPI_MCA_mpi_leave_pinned=0
 export OMPI_MCA_mpi_leave_pinned_pipeline=0
 
-#mpicc helloMPI.c
+#ompi_info
+
+#export PMI_DEBUG=1
+#export ALPSLLI_DEBUG=1
+
+mpicc helloMPI.c
+#./a.out
+
 #ldd ./a.out
+#lddtree ./a.out
+#strace -y ./a.out
 
 #gcc -I/usr/include -L/usr/lib -L/usr/lib/openmpi testalps.c -lalps -lalpsutil -lalpslli -lmpi
 
@@ -40,7 +50,7 @@ export OMPI_MCA_mpi_leave_pinned_pipeline=0
 
 #ompi_info
 
-./a.out
+#./a.out
 
 #ldd ./container.out
 

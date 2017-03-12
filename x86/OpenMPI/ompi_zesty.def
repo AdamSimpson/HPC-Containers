@@ -1,5 +1,5 @@
 BootStrap: docker
-From: ubuntu:xenial
+From: ubuntu:zesty
 IncludeCmd: yes
 
 %pre
@@ -25,11 +25,15 @@ IncludeCmd: yes
   SYSUTILS_DEFAULT_DIR=`readlink -f /opt/cray/sysutils/default`
   WLM_DEFAULT_DIR=`readlink -f /opt/cray/wlm_detect/default`
   PMI_DEFAULT_DIR=`readlink -f /opt/cray/pmi/default`
+  UGNI_DEFAULT_DIR=`readlink -f /opt/cray/ugni/default`
+  UDREG_DEFAULT_DIR=`readlink -f /opt/cray/udreg/default`
 
   # Symlinks cant always be followed in the container as the links arent mounted so we place them in /environment
   # which singularity currently sources
   echo "" >> ${SINGULARITY_ROOTFS}/environment
   echo "export PMI_DEFAULT_DIR=${PMI_DEFAULT_DIR}" >> ${SINGULARITY_ROOTFS}/environment
+  echo "export UGNI_DEFAULT_DIR=${UGNI_DEFAULT_DIR}" >> ${SINGULARITY_ROOTFS}/environment
+  echo "export UDREG_DEFAULT_DIR=${UDREG_DEFAULT_DIR}" >> ${SINGULARITY_ROOTFS}/environment
   echo "export PATH=$PATH:/bin:/sbin:/usr/bin:/usr/sbin" >> ${SINGULARITY_ROOTFS}/environment
   echo "export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${CRAY_LD_LIBRARY_PATH}:${WLM_DEFAULT_DIR}/lib64:${SYSUTILS_DEFAULT_DIR}/lib64:/usr/lib/x86_64-linux-gnu" >> ${SINGULARITY_ROOTFS}/environment
   echo "export PKG_CONFIG_PATH=${WLM_DEFAULT_DIR}/lib64/pkgconfig/:${SYSUTILS_DEFAULT_DIR}/lib64/pkgconfig/:${PKG_CONFIG_PATH}" >> ${SINGULARITY_ROOTFS}/environment
@@ -72,8 +76,8 @@ IncludeCmd: yes
 
   # Create symlinks to versioned libraries applicable to Ubuntu Xenial
   # These are needed for ubuntu provided packages built against openmpi
-  ln -s /usr/local/lib/libmpi.so /usr/lib/libmpi.so.12
-  ln -s /usr/local/lib/libmpi.so /usr/lib/libmpi.so.12.0.2
+  ln -s /usr/local/lib/libmpi.so /usr/lib/libmpi.so.20
+  ln -s /usr/local/lib/libmpi.so /usr/lib/libmpi.so.20.0.2
 
   # Install MPI4PY
   apt-get -y install python-mpi4py
