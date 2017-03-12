@@ -74,7 +74,7 @@ IncludeCmd: yes
   equivs-build /equivs-cray-openmpi
   dpkg -i cray-openmpi_1.0_all.deb
 
-  # Create symlinks to versioned libraries applicable to Ubuntu Xenial
+  # Create symlinks to versioned libraries applicable to Ubuntu Zesty
   # These are needed for ubuntu provided packages built against openmpi
   ln -s /usr/local/lib/libmpi.so /usr/lib/libmpi.so.20
   ln -s /usr/local/lib/libmpi.so /usr/lib/libmpi.so.20.0.2
