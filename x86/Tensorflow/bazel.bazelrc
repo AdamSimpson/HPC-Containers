@@ -1,0 +1,2 @@
+# Stop daemon from persisting bazel process
+startup --batch
