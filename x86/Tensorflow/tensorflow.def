@@ -20,7 +20,6 @@ From: ubuntu:xenial
 
   # Hack because bazel spins up daemons that confuse singularity during shutdown resulting is leftover files
   pkill -f bazel* 
-#  rm -rf /tmp/singularity*
   rm -rf /root/.cache/bazel
 
 %post
