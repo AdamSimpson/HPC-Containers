@@ -1,3 +1,6 @@
+# Tensorflow Container
+Provides Tensorflow/1.0.1 with Python2/3 interface. Additional Keras support provided.
+
 sudo singularity create --size 20000 tensorflow_x86.img
 HOME=`pwd` sudo -E singularity bootstrap tensorflow_x86.img tensorflow.def
 

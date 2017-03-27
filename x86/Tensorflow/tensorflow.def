@@ -9,7 +9,8 @@ From: ubuntu:xenial
   mkdir ${SINGULARITY_ROOTFS}/ccs
 
 %setup
-  cp configure_tensorflow ${SINGULARITY_ROOTFS}
+  cp configure_tensorflow_python2 ${SINGULARITY_ROOTFS}
+  cp configure_tensorflow_python3 ${SINGULARITY_ROOTFS}
 
   cp tensorflow.post ${SINGULARITY_ROOTFS}
 
@@ -18,34 +19,24 @@ From: ubuntu:xenial
 
   cp bazel.bazelrc ${SINGULARITY_ROOTFS}
 
-  # Hack because bazel spins up daemons that confuse singularity during shutdown resulting is leftover files
-  pkill -f bazel* 
-  rm -rf /root/.cache/bazel
-
   # Setup the environment to be sued in the container
   echo "" >> ${SINGULARITY_ROOTFS}/environment
-  echo "export PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/cuda/bin:$PATH" >> ${SINGULARITY_ROOTFS}/environment
-  echo "export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/lib:/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64:/usr/lib/nvidia" >> ${SINGULARITY_ROOTFS}/environment
+  echo "export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/cuda/bin:/usr/lib/jvm/java-8-openjdk-amd64/bin" >> ${SINGULARITY_ROOTFS}/environment
+  echo "export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64:/usr/lib/nvidia" >> ${SINGULARITY_ROOTFS}/environment
   echo "export CUDA_HOME=/usr/local/cuda" >> ${SINGULARITY_ROOTFS}/environment
-  echo "export GRADLE_USER_HOME=$HOME" >> ${SINGULARITY_ROOTFS}/environment
+  echo "export GRADLE_USER_HOME=${HOME}" >> ${SINGULARITY_ROOTFS}/environment
   echo "export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> ${SINGULARITY_ROOTFS}/environment
-  echo "export PATH=$PATH:$JAVA_HOME/bin" >> ${SINGULARITY_ROOTFS}/environment
   echo "export PROTOC=/usr/local/bin/protoc" >> ${SINGULARITY_ROOTFS}/environment
   echo "export GRPC_JAVA_PLUGIN=/usr/local/bin/protoc-gen-grpc-java" >> ${SINGULARITY_ROOTFS}/environment
 
+  # Hack because bazel spins up daemons that confuse singularity during shutdown resulting is leftover files
+  rm -rf /root/.cache/bazel
+  pkill -c -f bazel* 
+
 %post
   . environment
+  /bin/bash
   . ./tensorflow.post
 
 %runscript
-    export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
-    export PATH=$PATH:$JAVA_HOME/bin
-    export PATH=/usr/local/cuda/bin:$PATH
-    export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64:/usr/lib/nvidia"
-    export CUDA_HOME=/usr/local/cuda
-    export GRADLE_USER_HOME=$HOME
-    export PROTOC=/usr/local/bin/protoc
-    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
-    export GRPC_JAVA_PLUGIN=/usr/local/bin/protoc-gen-grpc-java
-    export PATH=$PATH:/usr/local/bin
     exec /usr/bin/python "$@"
