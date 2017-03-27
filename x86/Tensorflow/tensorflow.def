@@ -35,7 +35,6 @@ From: ubuntu:xenial
 
 %post
   . environment
-  /bin/bash
   . ./tensorflow.post
 
 %runscript
