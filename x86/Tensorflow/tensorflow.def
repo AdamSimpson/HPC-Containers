@@ -7,6 +7,9 @@ From: ubuntu:xenial
   mkdir -p ${SINGULARITY_ROOTFS}/opt/cray
   mkdir ${SINGULARITY_ROOTFS}/work
   mkdir ${SINGULARITY_ROOTFS}/ccs
+  mkdir ${SINGULARITY_ROOTFS}/atlas
+  mkdir ${SINGULARITY_ROOTFS}/atlas1
+  mkdir ${SINGULARITY_ROOTFS}/atlas2
 
 %setup
   cp configure_tensorflow_python2 ${SINGULARITY_ROOTFS}
