@@ -1,0 +1,33 @@
+BootStrap: docker
+From: ubuntu:xenial
+
+%setup
+  mkdir -p ${SINGULARITY_ROOTFS}/opt/cray
+  mkdir ${SINGULARITY_ROOTFS}/ccs
+
+  # Mount point for Cray files needed for ALSP runtime
+  mkdir -p ${SINGULARITY_ROOTFS}/var/spool/alps
+  mkdir -p ${SINGULARITY_ROOTFS}/var/opt/cray
+
+  mkdir -p ${SINGULARITY_ROOTFS}/lustre/atlas
+  mkdir -p ${SINGULARITY_ROOTFS}/lustre/atlas1
+  mkdir -p ${SINGULARITY_ROOTFS}/lustre/atlas2
+
+  mkdir -p ${SINGULARITY_ROOTFS}/WTF/WTF_Child
+
+  # Copy libraries only provided by the driver, which is not installed in the container
+  cp -r /opt/cray/nvidia/default/lib64 ${SINGULARITY_ROOTFS}/usr/lib
+
+  echo "" >> ${SINGULARITY_ROOTFS}/environment
+  echo "export PATH=/bin:/sbin:/usr/bin:/usr/sbin" >> ${SINGULARITY_ROOTFS}/environment
+
+%post
+  . /environment
+
+#  apt-get update
+#  apt-get -y install wget vim binutils dpkg-dev
+
+#  cd ~
+#  wget http://developer.download.nvidia.com/compute/cuda/7.5/Prod/local_installers/cuda_7.5.18_linux.run
+#  sh cuda_7.5.18_linux.run --silent --toolkit --override --no-opengl-libs
+#  rm -rf cuda_7.5.18_linux.run
