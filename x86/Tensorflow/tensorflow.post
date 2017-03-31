@@ -39,6 +39,9 @@
     # Copy over driver libraries
     cp -r /nvidia /usr/lib/
 
+    # We may be able to install bazel much easier on x86: https://bazel.build/versions/master/docs/install-ubuntu.html
+    # We should also add in tensorflow protobuf fix: https://www.tensorflow.org/install/install_linux
+
     # Bazel must have exact protobuf version, e.g. 3.0.1 doesn't work currently
     # the v3.0.0 taged version is busted and can't download gtest so we use the tarball
     wget https://github.com/google/protobuf/releases/download/v3.0.0/protobuf-cpp-3.0.0.tar.gz
@@ -46,7 +49,7 @@
     cd protobuf-3.0.0
     ./autogen.sh
     ./configure
-    make -j 20
+    make -j 8
     make install
 
     # grpc-java must be built against protobuf 3.0.0 to match bazel
@@ -67,24 +70,25 @@
     ./compile.sh
     cp output/bazel /usr/local/bin
 
+    # Make sure no leftover tensorflow artifacts from previous builds
+    rm -rf /tmp/tensorflow_pkg
+
     cd ~
     wget https://github.com/tensorflow/tensorflow/archive/v1.0.1.tar.gz -O tensorflow.tar.gz
     tar xf tensorflow.tar.gz
     mv tensorflow-1.0.1 tensorflow
     cd tensorflow
     cp /configure_tensorflow_python2 .
-    /bin/bash
     ./configure_tensorflow_python2
 
     bazel build -c opt --config=cuda tensorflow/tools/pip_package:build_pip_package
     bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
 
-    /bin/bash
-
     pip install /tmp/tensorflow_pkg/tensorflow-*.whl
 
     cd ..
     rm -rf tensorflow
+    rm -rf /tmp/tensorflow_pkg
 
     wget https://github.com/tensorflow/tensorflow/archive/v1.0.1.tar.gz -O tensorflow.tar.gz
     tar xf tensorflow.tar.gz
