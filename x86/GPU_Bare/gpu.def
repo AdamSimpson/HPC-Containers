@@ -13,8 +13,9 @@ From: ubuntu:xenial
   mkdir -p ${SINGULARITY_ROOTFS}/lustre/atlas1
   mkdir -p ${SINGULARITY_ROOTFS}/lustre/atlas2
 
-  # Copy libraries only provided by the driver, which is not installed in the container
-  cp -r /opt/cray/nvidia/default/lib64 ${SINGULARITY_ROOTFS}/usr/lib
+  # Copy libraries/binaries only provided by the CUDA driver portion of the install, which is not installed in the container
+  cp -r /opt/cray/nvidia/default/lib64/* ${SINGULARITY_ROOTFS}/usr/lib
+  cp -r /opt/cray/nvidia/default/bin/* ${SINGULARITY_ROOTFS}/usr/bin 
 
   echo "" >> ${SINGULARITY_ROOTFS}/environment
   echo "export PATH=/bin:/sbin:/usr/bin:/usr/sbin" >> ${SINGULARITY_ROOTFS}/environment
