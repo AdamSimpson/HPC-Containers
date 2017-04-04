@@ -5,8 +5,12 @@ From: ubuntu:xenial
 
 %pre
   mkdir -p ${SINGULARITY_ROOTFS}/opt/cray
-  mkdir ${SINGULARITY_ROOTFS}/work
-  mkdir ${SINGULARITY_ROOTFS}/ccs
+
+  # Mount point for Cray files needed for ALSP runtime
+  mkdir -p ${SINGULARITY_ROOTFS}/var/spool/alps
+  mkdir -p ${SINGULARITY_ROOTFS}/var/opt/cray
+
+  # Mount lustre
   mkdir -p ${SINGULARITY_ROOTFS}/lustre/atlas
   mkdir -p ${SINGULARITY_ROOTFS}/lustre/atlas1
   mkdir -p ${SINGULARITY_ROOTFS}/lustre/atlas2
@@ -17,10 +21,9 @@ From: ubuntu:xenial
 
   cp tensorflow.post ${SINGULARITY_ROOTFS}
 
-  # Copy libraries only provided by the driver, which is not installed in the container
-  cp -r /opt/cray/nvidia/default/lib64 ${SINGULARITY_ROOTFS}/nvidia
-
-  cp bazel.bazelrc ${SINGULARITY_ROOTFS}
+  # Copy over driver specific files, these are NOT portable
+  cp -r /opt/cray/nvidia/default/lib64/* ${SINGULARITY_ROOTFS}/usr/lib
+  cp -r /opt/cray/nvidia/default/bin/* ${SINGULARITY_ROOTFS}/usr/bin
 
   # Setup the environment to be sued in the container
   echo "" >> ${SINGULARITY_ROOTFS}/environment
@@ -34,10 +37,9 @@ From: ubuntu:xenial
 
   # Hack because bazel spins up daemons that confuse singularity during shutdown resulting is leftover files
   rm -rf /root/.cache/bazel
-  pkill -c -f bazel* 
 
 %post
-  . environment
+  . /environment
   . ./tensorflow.post
 
 %runscript

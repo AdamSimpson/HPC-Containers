@@ -1,5 +1,8 @@
     apt-get update
-    apt-get install -y build-essential wget curl maven libtool autoconf openjdk-8-jdk g++ zip zlib1g-dev unzip git
+    apt-get install -y software-properties-common
+    apt-add-repository universe
+    apt-get update
+    apt-get install -y build-essential wget curl pkg-config libtool autoconf openjdk-8-jdk g++ zip zlib1g-dev unzip git
     apt-get install -y python-numpy python-dev python-pip python-setuptools
     apt-get install -y python3-numpy python3-dev python3-pip python3-setuptools
 
@@ -16,18 +19,24 @@
     pip install --upgrade pip
     pip3 install --upgrade pip
 
-    # Install CUDA toolkit, without driver
-#  There is an issue with the deb not having a correct hash so we can't use it(easily)
-#    wget http://developer.download.nvidia.com/compute/cuda/7.5/Prod/local_installers/cuda-repo-ubuntu1504-7-5-local_7.5-18_amd64.deb
-#    dpkg -i cuda-repo-ubuntu1504-7-5-local_7.5-18_amd64.deb
-#    apt-get update
-#    apt-get -y install cuda-toolkit-7-5
-#    rm -rf cuda-repo-ubuntu1504-7-5-local_7.5-18_amd64.deb
+    # Install CUDA toolkit and driver libraries/binaries
 
-    cd ~
+    mkdir CUDA_INSTALL && cd CUDA_INSTALL
+
     wget http://developer.download.nvidia.com/compute/cuda/7.5/Prod/local_installers/cuda_7.5.18_linux.run
-    sh cuda_7.5.18_linux.run --silent --toolkit --override --no-opengl-libs
-    rm -rf cuda_7.5.18_linux.run
+
+    sh cuda_7.5.18_linux.run --extract=`pwd`
+
+    # Manually copy over driver components
+    sh NVIDIA-Linux-x86_64-352.39.run -x
+    cp NVIDIA-Linux-x86_64-352.39/*.h /usr/include
+
+    # Install toolkit components
+    sh cuda-linux64-rel-7.5.18-19867135.run -noprompt
+
+    # Remove cuda bits
+    cd ..
+    rm -rf CUDA_INSTALL
 
     # Install cuDNN
     wget http://developer.download.nvidia.com/compute/redist/cudnn/v5.1/cudnn-7.5-linux-x64-v5.1.tgz
@@ -36,39 +45,12 @@
     cp -P cuda/lib64/libcudnn* /usr/local/cuda/lib64
     chmod a+r /usr/local/cuda/include/cudnn.h /usr/local/cuda/lib64/libcudnn*
 
-    # Copy over driver libraries
-    cp -r /nvidia /usr/lib/
-
-    # We may be able to install bazel much easier on x86: https://bazel.build/versions/master/docs/install-ubuntu.html
     # We should also add in tensorflow protobuf fix: https://www.tensorflow.org/install/install_linux
 
-    # Bazel must have exact protobuf version, e.g. 3.0.1 doesn't work currently
-    # the v3.0.0 taged version is busted and can't download gtest so we use the tarball
-    wget https://github.com/google/protobuf/releases/download/v3.0.0/protobuf-cpp-3.0.0.tar.gz
-    tar xfv protobuf-cpp-3.0.0.tar.gz
-    cd protobuf-3.0.0
-    ./autogen.sh
-    ./configure
-    make -j 8
-    make install
-
-    # grpc-java must be built against protobuf 3.0.0 to match bazel
-    cd ~
-    git clone https://github.com/grpc/grpc-java.git
-    cd grpc-java
-    git checkout tags/v1.0.0
-    CXXFLAGS="-std=c++11" LDFLAGS="-rdynamic -L/grpc-java/protobuf_build/lib" ./gradlew java_pluginExecutable -Pprotoc=/grpc-java/protobuf_build/bin/protoc
-    cp compiler/build/exe/java_plugin/protoc-gen-grpc-java /usr/local/bin
-    cd ~
-
-    # bazelrc stops the bazel daemon from spinning up and confusing singularity
-    # For some reason tensor flow doesn't configure correctly if this is in place so we shut the server down manually
-#    cp /bazel.bazelrc /etc
-
-    git clone https://github.com/bazelbuild/bazel.git
-    cd bazel
-    ./compile.sh
-    cp output/bazel /usr/local/bin
+    echo "deb [arch=amd64] http://storage.googleapis.com/bazel-apt stable jdk1.8" | tee /etc/apt/sources.list.d/bazel.list
+    curl https://bazel.build/bazel-release.pub.gpg | apt-key add -
+    apt-get update -y && apt-get install -y bazel
+    apt-get upgrade -y bazel
 
     # Make sure no leftover tensorflow artifacts from previous builds
     rm -rf /tmp/tensorflow_pkg
@@ -102,6 +84,10 @@
 
     pip3 install /tmp/tensorflow_pkg/tensorflow-*.whl
 
+    cd ..
+    rm -rf tensorflow
+    rm -rf /tmp/tensorflow_pkg
+
     pip install keras
     pip3 install keras
 
@@ -111,5 +97,5 @@
     # Make sure bazel is shutdown so it doesn't stop singularity from cleanly exiting
     bazel shutdown
     sleep 10
-    pkill -f bazel
+    pkill -f bazel*
     ps aux | grep bazel
