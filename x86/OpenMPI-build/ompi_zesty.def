@@ -19,6 +19,8 @@ IncludeCmd: yes
   # OpenMPI quiries the CLE release file
   cp /etc/opt/cray/release/clerelease ${SINGULARITY_ROOTFS}
 
+  cp ./rules ${SINGULARITY_ROOTFS}
+
   # wlm_detect is in /usr/lib64/pkgconfig which isnt exposed to the container
   SYSUTILS_DEFAULT_DIR=`readlink -f /opt/cray/sysutils/default`
   WLM_DEFAULT_DIR=`readlink -f /opt/cray/wlm_detect/default`
@@ -35,6 +37,8 @@ IncludeCmd: yes
   echo "export PATH=$PATH:/bin:/sbin:/usr/bin:/usr/sbin" >> ${SINGULARITY_ROOTFS}/environment
   echo "export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${CRAY_LD_LIBRARY_PATH}:${WLM_DEFAULT_DIR}/lib64:${SYSUTILS_DEFAULT_DIR}/lib64:/usr/lib/x86_64-linux-gnu" >> ${SINGULARITY_ROOTFS}/environment
   echo "export PKG_CONFIG_PATH=${WLM_DEFAULT_DIR}/lib64/pkgconfig/:${SYSUTILS_DEFAULT_DIR}/lib64/pkgconfig/:${PKG_CONFIG_PATH}" >> ${SINGULARITY_ROOTFS}/environment
+  echo "export PS1=SingularityShell" >> ${SINGULARITY_ROOTFS}/environment
+  echo "export SINGULARITY_SHELL=/bin/bash" >> ${SINGULARITY_ROOTFS}/environment
 
 %post
   # Environment isnt sourced in post but contains variables we need set
@@ -55,6 +59,11 @@ IncludeCmd: yes
   mkdir OMPI_BUILD && cd OMPI_BUILD
   apt-get source openmpi
   cd openmpi-2.0.2
+
+  # Copy updated rules which contain Cray specific configure options
+  cp /rules debian
+
+  # Build debs
   dpkg-source --commit
 
   # Remove me after modifying for Cray:
