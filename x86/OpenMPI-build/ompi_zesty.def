@@ -19,8 +19,6 @@ IncludeCmd: yes
   # OpenMPI quiries the CLE release file
   cp /etc/opt/cray/release/clerelease ${SINGULARITY_ROOTFS}
 
-  cp ./rules ${SINGULARITY_ROOTFS}
-
   # wlm_detect is in /usr/lib64/pkgconfig which isnt exposed to the container
   SYSUTILS_DEFAULT_DIR=`readlink -f /opt/cray/sysutils/default`
   WLM_DEFAULT_DIR=`readlink -f /opt/cray/wlm_detect/default`
@@ -53,57 +51,11 @@ IncludeCmd: yes
   apt-get update
   apt-get install -y dh-make devscripts build-essential lintian apt-utils pax-utils strace gfortran ltrace libssl-dev zlib1g zlib1g-dev pkg-config wget git vim binutils dpkg-dev libtool automake autoconf flex ssh expat libxmlrpc-epi-dev libexpat1-dev libxml2 libxml2-dev libhwloc-dev libmunge-dev
 
+  # Remove me after modifying for Cray:
+  apt-get install -y chrpath libcr-dev default-jdk
+
   mkdir -p /etc/opt/cray/release/
   cp /clerelease /etc/opt/cray/release
-
-  mkdir OMPI_BUILD && cd OMPI_BUILD
-  apt-get source openmpi
-  cd openmpi-2.0.2
-
-  # Copy updated rules which contain Cray specific configure options
-  cp /rules debian
-
-  # Build debs
-  dpkg-source --commit
-
-  # Remove me after modifying for Cray:
-  apt-get install -y chrpath libibverbs-dev libfabric-dev libpsm-infinipath1-dev libcr-dev default-jdk
-
-  # This should probably be signed: https://help.ubuntu.com/community/GnuPrivacyGuardHowto
-  debuild -uc -us --lintian-opts --profile debian
-
-  cd /
-
-#  I dont know why but using tags instead of releases causes issues when running osu bandwidth benchmarks
-#  git clone https://github.com/open-mpi/ompi.git
-#  cd ompi
-#  git checkout tags/v2.0.2
-#  wget https://github.com/open-mpi/ompi/archive/v2.0.2.tar.gz -O v2.0.2.tar.gz
-#  tar xf v2.0.2.tar.gz
-#  cd ompi-2.0.2
-#  ./autogen.pl
-#  ./configure --with-hwloc=/usr --enable-shared --enable-mpi-cxx --without-tm --without-slurm --with-alps --without-verbs-sshmem --with-ugni=${UGNI_DEFAULT_DIR} --disable-getpwuid --with-udreg=${UDREG_DEFAULT_DIR} --disable-dlopen --without-psm --without-psm2 --without-mxm --disable-mpi-thread-multiple --without-sqlite3 --enable-vt --with-cray_pmi=${PMI_DEFAULT_DIR} --without-verbs
-
-#  make -j 16
-#  make install
-
-  # Not sure why this is needed
-#  chmod -R 755 /usr/local/share
-#  chmod -R 755 /usr/local/lib
-
-  # Create dummy package entry
-#  cd /
-#  apt-get -y install equivs
-#  equivs-build /equivs-cray-openmpi
-#  dpkg -i cray-openmpi_1.0_all.deb
-
-  # Create symlinks to versioned libraries applicable to Ubuntu Zesty
-  # These are needed for ubuntu provided packages built against openmpi
-#  ln -s /usr/local/lib/libmpi.so /usr/lib/libmpi.so.20
-#  ln -s /usr/local/lib/libmpi.so /usr/lib/libmpi.so.20.0.2
-
-  # Install MPI4PY
-#  apt-get -y install python-mpi4py
 
   # Runtime OMPI flags needed on Cray
   echo "export OMPI_MCA_mpi_leave_pinned=0" >> /environment
