@@ -23,7 +23,8 @@ IncludeCmd: yes
   # which singularity currently sources
   echo "" >> ${SINGULARITY_ROOTFS}/environment
   echo "export PATH=$PATH:/bin:/sbin:/usr/bin:/usr/sbin" >> ${SINGULARITY_ROOTFS}/environment
-  echo "export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${CRAY_LD_LIBRARY_PATH}:${WLM_DEFAULT_DIR}/lib64:${SYSUTILS_DEFAULT_DIR}/lib64:/usr/lib/x86_64-linux-gnu" >> ${SINGULARITY_ROOTFS}/environment
+  echo 'export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${CRAY_LD_LIBRARY_PATH}:`readlink -f /opt/cray/wlm_detect/default`/lib64:/usr/lib/x86_64-linux-gnu' >> ${SINGULARITY_ROOTFS}/environment
+  echo 'export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:'`readlink -f /opt/cray/wlm_detect/default`/lib64 >> ${SINGULARITY_ROOTFS}/environment
   echo "export PS1=SingularityShell" >> ${SINGULARITY_ROOTFS}/environment
 
 %post
@@ -38,10 +39,10 @@ IncludeCmd: yes
 
   cd /
   # Install all OpenMPI debs
-  dpkg -i --force-all build/libopenmpi2_2.0.2-2_amd64.deb
-  dpkg -i --force-all build/libopenmpi-dev_2.0.2-2_amd64.deb
   dpkg -i --force-all build/openmpi-common_2.0.2-2_all.deb  
   dpkg -i --force-all build/openmpi-bin_2.0.2-2_amd64.deb
+  dpkg -i --force-all build/libopenmpi2_2.0.2-2_amd64.deb
+  dpkg -i --force-all build/libopenmpi-dev_2.0.2-2_amd64.deb
 
   # Install any missing dependencies
   apt-get install -y -f

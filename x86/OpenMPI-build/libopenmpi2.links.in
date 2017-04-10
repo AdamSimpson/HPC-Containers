@@ -1,8 +1,8 @@
 # Adam S. Add alps and ugni components
 
 # Compatibility links to /usr/bin
-usr/lib/@TRIPLET@/openmpi/lib/libmca_common_alps.so   usr/lib/@TRIPLET@/libmca_common_alps.so
-usr/lib/@TRIPLET@/openmpi/lib/libmca_common_ugni.so   usr/lib/@TRIPLET@/libmca_common_ugni.so
+usr/lib/@TRIPLET@/openmpi/lib/libmca_common_alps.so.20.0.0   usr/lib/@TRIPLET@/libmca_common_alps.so.20.0.0
+usr/lib/@TRIPLET@/openmpi/lib/libmca_common_ugni.so.20.0.1   usr/lib/@TRIPLET@/libmca_common_ugni.so.20.0.1
 usr/lib/@TRIPLET@/openmpi/lib/libmca_common_sm.so.20.0.0   usr/lib/@TRIPLET@/libmca_common_sm.so.20.0.0
 usr/lib/@TRIPLET@/openmpi/lib/libmpi_cxx.so.20.0.1         usr/lib/@TRIPLET@/libmpi_cxx.so.20.0.1
 usr/lib/@TRIPLET@/openmpi/lib/libmpi_mpifh.so.20.1.0	usr/lib/@TRIPLET@/libmpi_mpifh.so.20.1.0
@@ -14,8 +14,8 @@ usr/lib/@TRIPLET@/openmpi/lib/libopen-pal.so.20.2.0        usr/lib/@TRIPLET@/lib
 usr/lib/@TRIPLET@/openmpi/lib/libopen-rte.so.20.1.0        usr/lib/@TRIPLET@/libopen-rte.so.20.1.0
 # usr/lib/@TRIPLET@/openmpi/lib/libpmix.so.0.0.0            usr/lib/@TRIPLET@/libpmix.so.0.0.0
 # SONAME symlinks
-usr/lib/@TRIPLET@/libmca_common_alps.so                   usr/lib/@TRIPLET@/libmca_common_alps.so
-usr/lib/@TRIPLET@/libmca_common_ugni.so                   usr/lib/@TRIPLET@/libmca_common_ugni.so
+usr/lib/@TRIPLET@/libmca_common_alps.so.20.0.0                   usr/lib/@TRIPLET@/libmca_common_alps.so.20
+usr/lib/@TRIPLET@/libmca_common_ugni.so.20.0.1                   usr/lib/@TRIPLET@/libmca_common_ugni.so.20
 usr/lib/@TRIPLET@/libmca_common_sm.so.20.0.0              usr/lib/@TRIPLET@/libmca_common_sm.so.20
 usr/lib/@TRIPLET@/libmpi_cxx.so.20.0.1                    usr/lib/@TRIPLET@/libmpi_cxx.so.20
 usr/lib/@TRIPLET@/libmpi_mpifh.so.20.1.0			usr/lib/@TRIPLET@/libmpi_mpifh.so.20

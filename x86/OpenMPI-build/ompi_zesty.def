@@ -45,7 +45,7 @@ IncludeCmd: yes
   # Supress some messages from apt related to being in a minimal install
   export DEBIAN_FRONTEND=noninteractive
 
-  # Enable grabbing source
+  # Enable grabbing source packages
   sed -i '/deb-src/s/#//g' /etc/apt/sources.list
 
   apt-get update
