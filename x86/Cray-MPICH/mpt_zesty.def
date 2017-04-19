@@ -18,20 +18,21 @@ IncludeCmd: yes
 %setup
   SYSUTILS_DEFAULT_DIR=`readlink -f /opt/cray/sysutils/default`
   WLM_DEFAULT_DIR=`readlink -f /opt/cray/wlm_detect/default`
+  GNU_MPICH_LIB_DIR=`readlink -f /opt/cray/mpt/default/gni/mpich-GNU/5.1/lib`
 
   # OpenMPI quiries the CLE release file
   cp /etc/opt/cray/release/clerelease ${SINGULARITY_ROOTFS}
 
   # Copy in Cray libmpich libraries
   mkdir -p ${SINGULARITY_ROOTFS}/cray_mpt
-  cp -H /opt/cray/mpt/default/gni/mpich-GNU/5.1/lib/libmpich.so ${SINGULARITY_ROOTFS}/cray_mpt
-  cp -H /opt/cray/mpt/default/gni/mpich-GNU/5.1/lib/libmpichcxx.so ${SINGULARITY_ROOTFS}/cray_mpt
-  cp -H /opt/cray/mpt/default/gni/mpich-GNU/5.1/lib/libfmpich.so ${SINGULARITY_ROOTFS}/cray_mpt
+  cp -H ${GNU_MPICH_LIB_DIR}/libmpich.so ${SINGULARITY_ROOTFS}/cray_mpt
+  cp -H ${GNU_MPICH_LIB_DIR}/libmpichcxx.so ${SINGULARITY_ROOTFS}/cray_mpt
+  cp -H ${GNU_MPICH_LIB_DIR}/libfmpich.so ${SINGULARITY_ROOTFS}/cray_mpt
 
   # which singularity currently sources
   echo "" >> ${SINGULARITY_ROOTFS}/environment
   echo "export PATH=$PATH:/bin:/sbin:/usr/bin:/usr/sbin" >> ${SINGULARITY_ROOTFS}/environment
-  echo "export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/opt/cray/mpt/default/gni/mpich-GNU/5.1/lib:${CRAY_LD_LIBRARY_PATH}:${SYSUTILS_DEFAULT_DIR}/lib64:${WLM_DEFAULT_DIR}/lib64:/lib64:/usr/lib/x86_64-linux-gnu" >> ${SINGULARITY_ROOTFS}/environment
+  echo "export LD_LIBRARY_PATH=${GNU_MPICH_LIB_DIR}:${LD_LIBRARY_PATH}:${CRAY_LD_LIBRARY_PATH}:${SYSUTILS_DEFAULT_DIR}/lib64:${WLM_DEFAULT_DIR}/lib64:/lib64:/usr/lib/x86_64-linux-gnu" >> ${SINGULARITY_ROOTFS}/environment
   echo "export PS1=SingularityShell" >> ${SINGULARITY_ROOTFS}/environment
   echo "export SINGULARITY_SHELL=/bin/bash" >> ${SINGULARITY_ROOTFS}/environment
 
