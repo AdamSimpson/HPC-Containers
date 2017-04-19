@@ -1,0 +1,7 @@
+# Create base CentOS AARCH64 build
+
+# Create image base
+sudo singularity create --size 1000 centos_aarch64.img
+
+sudo singularity bootstrap centos_aarch64.img centos_aarch64.def
+
