@@ -1,0 +1,7 @@
+# Create base CentOS AARCH64 build from AARCH64 Ubuntu docker image
+
+# Create image base
+sudo singularity create --size 1000 builder.img
+
+sudo singularity bootstrap builder.img centos_builder.def
+

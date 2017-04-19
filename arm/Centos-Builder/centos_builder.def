@@ -1,0 +1,22 @@
+BootStrap: docker
+From: aarch64/ubuntu:zesty
+IncludeCmd: yes
+
+%post
+  # Supress some messages from apt related to being in a minimal install
+  export DEBIAN_FRONTEND=noninteractive
+
+  # Enable grabbing source packages
+  sed -i '/deb-src/s/#//g' /etc/apt/sources.list
+
+  # Install singularity...within singularity
+  VERSION=2.2.1
+  wget https://github.com/singularityware/singularity/releases/download/$VERSION/singularity-$VERSION.tar.gz
+  tar xvf singularity-$VERSION.tar.gz
+  cd singularity-$VERSION
+  ./configure --prefix=/usr/local
+  make
+  make install
+
+  /usr/local/singularity create --size 1000 centos_aarch64.img
+  /usr/local/singularity bootstrap centos_aarch64.img centos_aarch64.def
