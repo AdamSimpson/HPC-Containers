@@ -1,0 +1,57 @@
+BootStrap: docker
+From: aarch64/ubuntu:zesty
+IncludeCmd: yes
+
+%pre
+  # Mount point for Cray files needed for MPI
+  mkdir -p ${SINGULARITY_ROOTFS}/opt/cray
+
+  # Mount point for Cray files needed for ALSP runtime
+  mkdir -p ${SINGULARITY_ROOTFS}/var/spool/alps
+  mkdir -p ${SINGULARITY_ROOTFS}/var/opt/cray
+
+  # Mount lustre
+  mkdir -p ${SINGULARITY_ROOTFS}/lustre/atlas
+  mkdir -p ${SINGULARITY_ROOTFS}/lustre/atlas1
+  mkdir -p ${SINGULARITY_ROOTFS}/lustre/atlas2
+
+%setup
+  SYSUTILS_DEFAULT_DIR=`readlink -f /opt/cray/sysutils/default`
+  WLM_DEFAULT_DIR=`readlink -f /opt/cray/wlm_detect/default`
+  GNU_MPICH_LIB_DIR=`readlink -f /opt/cray/mpt/default/gni/mpich-GNU/5.1/lib`
+
+  # OpenMPI quiries the CLE release file
+  cp /etc/opt/cray/release/clerelease ${SINGULARITY_ROOTFS}
+
+  # Copy in Cray libmpich libraries
+  mkdir -p ${SINGULARITY_ROOTFS}/cray_mpt
+  cp -H ${GNU_MPICH_LIB_DIR}/libmpich.so ${SINGULARITY_ROOTFS}/cray_mpt
+  cp -H ${GNU_MPICH_LIB_DIR}/libmpichcxx.so ${SINGULARITY_ROOTFS}/cray_mpt
+  cp -H ${GNU_MPICH_LIB_DIR}/libfmpich.so ${SINGULARITY_ROOTFS}/cray_mpt
+
+  # which singularity currently sources
+  echo "" >> ${SINGULARITY_ROOTFS}/environment
+  echo "export PATH=$PATH:/bin:/sbin:/usr/bin:/usr/sbin" >> ${SINGULARITY_ROOTFS}/environment
+  echo "export LD_LIBRARY_PATH=${GNU_MPICH_LIB_DIR}:${LD_LIBRARY_PATH}:${CRAY_LD_LIBRARY_PATH}:${SYSUTILS_DEFAULT_DIR}/lib64:${WLM_DEFAULT_DIR}/lib64:/lib64:/usr/lib/x86_64-linux-gnu" >> ${SINGULARITY_ROOTFS}/environment
+  echo "export PS1=SingularityShell" >> ${SINGULARITY_ROOTFS}/environment
+  echo "export SINGULARITY_SHELL=/bin/bash" >> ${SINGULARITY_ROOTFS}/environment
+
+%post
+  # Environment isnt sourced in post but contains variables we need set
+  . /environment
+
+  # Supress some messages from apt related to being in a minimal install
+  export DEBIAN_FRONTEND=noninteractive
+
+  # Enable grabbing source packages
+  sed -i '/deb-src/s/#//g' /etc/apt/sources.list
+
+  # Install base packages and MPICH
+  apt-get update
+  apt-get install -y build-essential strace gfortran ltrace libssl-dev pkg-config wget git vim binutils dpkg-dev libtool automake autoconf ssh
+  apt-get install -y mpich
+
+  # Overwrite libmpich files with Cray provided copies
+  cp cray_mpt/libmpich.so /usr/lib/aarch64-linux-gnu/libmpich.so.12.1.0
+  cp cray_mpt/libmpichcxx.so /usr/lib/aarch64-linux-gnu/libmpichcxx.so.12.1.0
+  cp cray_mpt/libfmpich.so /usr/lib/aarch64-linux-gnu/libmpichfort.so.12.1.0
