@@ -146,6 +146,41 @@
     make install
 
     ####
+    ##  Caffe2
+    ####
+    apt-get install -y --no-install-recommends libgflags-dev
+    apt-get install -y --no-install-recommends \
+      libgtest-dev \
+      libiomp-dev \
+      libleveldb-dev \
+      liblmdb-dev \
+      libopencv-dev \
+      libopenmpi-dev \
+      libsnappy-dev \
+      python-pydot
+
+    pip install \
+      flask \
+      graphviz \
+      hypothesis \
+      jupyter \
+      matplotlib \
+      pydot python-nvd3 \
+      pyyaml \
+      requests \
+      scikit-image \
+      scipy \
+      setuptools \
+      tornado
+
+    cd /
+    git clone --recursive https://github.com/caffe2/caffe2.git && cd caffe2
+    make && cd build && sudo make install
+    python -c 'from caffe2.python import core' 2>/dev/null && echo "Success" || echo "Failure"
+
+    python -m caffe2.python.operator_test.relu_op_test
+
+    ####
     ## CNTK - wont work as Power isn't supported: https://github.com/Microsoft/CNTK/issues/1318
     ####
 
@@ -158,6 +193,7 @@
     git clone https://github.com/dmlc/mxnet.git /mxnet --recursive
 
     # Move to source code parent directory
+    apt-get -y install mpi4py
     cd /mxnet
     cp make/config.mk .
     echo "USE_BLAS=openblas" >>config.mk
@@ -166,6 +202,7 @@
     echo "USE_CUDA=1" >>config.mk
     echo "USE_CUDA_PATH=/usr/local/cuda" >>config.mk
     echo "USE_CUDNN=1" >>config.mk
+    echo "USE_DIST_KVSTORE=1" >>config.mk
     cd /mxnet/setup-utils
     bash install-mxnet-ubuntu-python.sh
     # It has automatically messed with ~/.bashrc...why would it do this by default???
