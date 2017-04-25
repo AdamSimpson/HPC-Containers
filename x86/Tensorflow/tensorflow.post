@@ -10,10 +10,10 @@
     apt-get install -y gcc-4.8 g++-4.8
 	
     update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 51
-    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 50
+    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-6 50
     update-alternatives --auto gcc
     update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 51
-    update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-5 50
+    update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-6 50
     update-alternatives --auto g++
 
     pip install --upgrade pip
@@ -25,6 +25,7 @@
 
     wget http://developer.download.nvidia.com/compute/cuda/7.5/Prod/local_installers/cuda_7.5.18_linux.run
 
+    export PERL5LIB=.
     sh cuda_7.5.18_linux.run --extract=`pwd`
 
     # Manually copy over driver components
@@ -56,9 +57,9 @@
     rm -rf /tmp/tensorflow_pkg
 
     cd ~
-    wget https://github.com/tensorflow/tensorflow/archive/v1.0.1.tar.gz -O tensorflow.tar.gz
+    wget https://github.com/tensorflow/tensorflow/archive/v1.1.0-rc2.tar.gz -O tensorflow.tar.gz
     tar xf tensorflow.tar.gz
-    mv tensorflow-1.0.1 tensorflow
+    mv tensorflow-1.1.0-rc2 tensorflow
     cd tensorflow
     cp /configure_tensorflow_python2 .
     ./configure_tensorflow_python2
@@ -72,9 +73,9 @@
     rm -rf tensorflow
     rm -rf /tmp/tensorflow_pkg
 
-    wget https://github.com/tensorflow/tensorflow/archive/v1.0.1.tar.gz -O tensorflow.tar.gz
+    wget https://github.com/tensorflow/tensorflow/archive/v1.1.0-rc2.tar.gz -O tensorflow.tar.gz
     tar xf tensorflow.tar.gz
-    mv tensorflow-1.0.1 tensorflow
+    mv tensorflow-1.1.0-rc2 tensorflow
     cd tensorflow
     cp /configure_tensorflow_python3 .
     ./configure_tensorflow_python3
@@ -93,6 +94,9 @@
 
     pip install scikit-learn
     pip3 install scikit-learn
+
+    pip install Theano
+    pip3 install Theano
 
     # Make sure bazel is shutdown so it doesn't stop singularity from cleanly exiting
     bazel shutdown

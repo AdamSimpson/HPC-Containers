@@ -1,7 +1,7 @@
 # Defines a Singularity container with TensorFlow pre-installed
 #
 BootStrap: docker
-From: ubuntu:xenial
+From: ubuntu:zesty
 
 %pre
   mkdir -p ${SINGULARITY_ROOTFS}/opt/cray
