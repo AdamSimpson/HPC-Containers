@@ -176,11 +176,14 @@
     cd /
     git clone --recursive https://github.com/caffe2/caffe2.git && cd caffe2
  
+    make
+
     # Fix Google/Benchmark source bug - https://github.com/caffe2/caffe2/issues/399
     cd third_party/benchmark; git pull origin master
     cd ../..
 
-    make && cd build && make install
+    cd build
+    make install
     python -c 'from caffe2.python import core' 2>/dev/null && echo "Success" || echo "Failure"
 
     python -m caffe2.python.operator_test.relu_op_test
