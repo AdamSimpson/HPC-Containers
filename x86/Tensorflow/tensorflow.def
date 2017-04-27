@@ -3,7 +3,8 @@
 BootStrap: docker
 From: ubuntu:zesty
 
-%pre
+%setup
+  # Mount point for Cray files needed for MPI
   mkdir -p ${SINGULARITY_ROOTFS}/opt/cray
 
   # Mount point for Cray files needed for ALSP runtime
@@ -15,15 +16,15 @@ From: ubuntu:zesty
   mkdir -p ${SINGULARITY_ROOTFS}/lustre/atlas1
   mkdir -p ${SINGULARITY_ROOTFS}/lustre/atlas2
 
-%setup
+  mount --no-mtab --bind "/lustre/atlas" "$SINGULARITY_ROOTFS/lustre/atlas"
+  mount --no-mtab --bind "/lustre/atlas1" "$SINGULARITY_ROOTFS/lustre/atlas1"
+  mount --no-mtab --bind "/lustre/atlas2" "$SINGULARITY_ROOTFS/lustre/atlas2"
+
+
   cp configure_tensorflow_python2 ${SINGULARITY_ROOTFS}
   cp configure_tensorflow_python3 ${SINGULARITY_ROOTFS}
 
   cp tensorflow.post ${SINGULARITY_ROOTFS}
-
-  # Copy over driver specific files, these are NOT portable
-  cp -r /opt/cray/nvidia/default/lib64/* ${SINGULARITY_ROOTFS}/usr/lib
-  cp -r /opt/cray/nvidia/default/bin/* ${SINGULARITY_ROOTFS}/usr/bin
 
   # Setup the environment to be sued in the container
   echo "" >> ${SINGULARITY_ROOTFS}/environment
@@ -34,6 +35,16 @@ From: ubuntu:zesty
   echo "export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> ${SINGULARITY_ROOTFS}/environment
   echo "export PROTOC=/usr/local/bin/protoc" >> ${SINGULARITY_ROOTFS}/environment
   echo "export GRPC_JAVA_PLUGIN=/usr/local/bin/protoc-gen-grpc-java" >> ${SINGULARITY_ROOTFS}/environment
+
+  ####
+  # Setup Cray MPI
+  ####
+  SYSUTILS_DEFAULT_DIR=`readlink -f /opt/cray/sysutils/default`
+  WLM_DEFAULT_DIR=`readlink -f /opt/cray/wlm_detect/default`
+  GNU_MPICH_LIB_DIR=`readlink -f /opt/cray/mpt/default/gni/mpich-GNU/5.1/lib`
+
+  # Make sure Cray MPICH libraries are in container LD_LIBRARY_PATH
+  echo "export LD_LIBRARY_PATH=${GNU_MPICH_LIB_DIR}:${LD_LIBRARY_PATH}:${CRAY_LD_LIBRARY_PATH}:${SYSUTILS_DEFAULT_DIR}/lib64:${WLM_DEFAULT_DIR}/lib64:/lib64:/usr/lib/x86_64-linux-gnu" >> ${SINGULARITY_ROOTFS}/environment
 
   # Hack because bazel spins up daemons that confuse singularity during shutdown resulting is leftover files
   rm -rf /root/.cache/bazel

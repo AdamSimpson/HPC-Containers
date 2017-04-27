@@ -20,14 +20,18 @@
     pip install --upgrade pip
     pip3 install --upgrade pip
 
+    export WORKDIR=`pwd`
+
     # Install CUDA toolkit and driver libraries/binaries
 
+    # Check if we have downloaded a cached copy
+    if [ ! -e ../cuda_7.5.18_linux.run ]
+      wget http://developer.download.nvidia.com/compute/cuda/7.5/Prod/local_installers/cuda_7.5.18_linux.run
+    fi
+
     mkdir CUDA_INSTALL && cd CUDA_INSTALL
-
-    wget http://developer.download.nvidia.com/compute/cuda/7.5/Prod/local_installers/cuda_7.5.18_linux.run
-
     export PERL5LIB=.
-    sh cuda_7.5.18_linux.run --extract=`pwd`
+    sh ../cuda_7.5.18_linux.run --extract=`pwd`
 
     # Manually copy over driver components
     sh NVIDIA-Linux-x86_64-352.39.run -x
@@ -37,7 +41,7 @@
     sh cuda-linux64-rel-7.5.18-19867135.run -noprompt
 
     # Remove cuda bits
-    cd ..
+    cd $WORKDIR
     rm -rf CUDA_INSTALL
 
     # Install cuDNN
@@ -75,7 +79,7 @@
     CUDNN_INSTALL_PATH= $CUDA_TOOLKIT_PATH
     TF_CUDA_COMPUTE_CAPABILITIES="3.5"
 
-    cd ~
+    cd $WORKDIR
     wget https://github.com/tensorflow/tensorflow/archive/v1.1.0-rc2.tar.gz -O tensorflow.tar.gz
     tar xf tensorflow.tar.gz
     mv tensorflow-1.1.0-rc2 tensorflow
@@ -89,7 +93,7 @@
 
     pip install /tmp/tensorflow_pkg/tensorflow-*.whl
 
-    cd ..
+    cd $WORKDIR
     rm -rf tensorflow
     rm -rf /tmp/tensorflow_pkg
 
@@ -108,7 +112,7 @@
 
     pip3 install /tmp/tensorflow_pkg/tensorflow-*.whl
 
-    cd ..
+    cd $WORKDIR
     rm -rf tensorflow
     rm -rf /tmp/tensorflow_pkg
 
