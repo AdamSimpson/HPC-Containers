@@ -50,7 +50,7 @@ From: ubuntu:zesty
   GNU_MPICH_LIB_DIR=`readlink -f /opt/cray/mpt/default/gni/mpich-GNU/5.1/lib`
 
   # Make sure Cray MPICH libraries are in container LD_LIBRARY_PATH
-  echo "export LD_LIBRARY_PATH=${GNU_MPICH_LIB_DIR}:${LD_LIBRARY_PATH}:${CRAY_LD_LIBRARY_PATH}:${SYSUTILS_DEFAULT_DIR}/lib64:${WLM_DEFAULT_DIR}/lib64:/lib64:/usr/lib/x86_64-linux-gnu" >> ${SINGULARITY_ROOTFS}/environment
+  echo "export LD_LIBRARY_PATH=${GNU_MPICH_LIB_DIR}:"'${LD_LIBRARY_PATH}'":${CRAY_LD_LIBRARY_PATH}:${SYSUTILS_DEFAULT_DIR}/lib64:${WLM_DEFAULT_DIR}/lib64:/lib64:/usr/lib/x86_64-linux-gnu" >> ${SINGULARITY_ROOTFS}/environment
 
   # Hack because bazel spins up daemons that confuse singularity during shutdown resulting is leftover files
   rm -rf /root/.cache/bazel
