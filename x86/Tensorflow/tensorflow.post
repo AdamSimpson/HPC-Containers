@@ -22,20 +22,15 @@
 
     # Install CUDA toolkit and driver libraries/binaries
 
-    mkdir CUDA_INSTALL
-    cd CUDA_INSTALL
-
     # Check if we have downloaded a cached copy
-    if [ -e $BOOTSTRAP_PWD/cuda_7.5.18_linux.run ]; then
-      cp $BOOTSTRAP_PWD/cuda_7.5.18_linux.run .
+    if [ -e cuda_7.5.18_linux.run ]; then
+      echo "Using cached CUDA toolkit"
     else
       wget http://developer.download.nvidia.com/compute/cuda/7.5/Prod/local_installers/cuda_7.5.18_linux.run
     fi
 
     export PERL5LIB=.
     sh cuda_7.5.18_linux.run --silent --toolkit --override
-    cd $BOOTSTRAP_PWD
-    rm -rf CUDA_INSTALL
 
 #    export PERL5LIB=.
 #    sh ./cuda_7.5.18_linux.run --extract=`pwd`
@@ -48,7 +43,7 @@
 #    sh cuda-linux64-rel-7.5.18-19867135.run -noprompt
 
     # Remove cuda bits
-    cd $BOOTSTRAP_PWD
+    cd $BOOTSTRAP_WORKDIR
     rm -rf CUDA_INSTALL
 
     # Install cuDNN
@@ -70,28 +65,33 @@
     rm -rf /root/.cache
 
     # Set tensorflow configure options
-    PYTHON_BIN_PATH=`which python`
-    TF_NEED_MKL=N
-    CC_OPT_FLAGS="-march=native"
-    TF_NEED_JEMALLOC="Y"
-    TF_NEED_GCP="N"
-    TF_NEED_HDFS="N"
-    TF_ENABLE_XLA="N"
-    TF_NEED_OPENCL="N"
-    TF_NEED_CUDA="Y"
-    TF_CUDA_CLANG="N"
-    TF_CUDA_VERSION="7.5"
-    CUDA_TOOLKIT_PATH="/usr/local/cuda"
-    TF_CUDNN_VERSION="5.1"
-    CUDNN_INSTALL_PATH= $CUDA_TOOLKIT_PATH
-    TF_CUDA_COMPUTE_CAPABILITIES="3.5"
+    export PYTHON_BIN_PATH=`which python`
+    export TF_NEED_MKL=0
+    export CC_OPT_FLAGS="-march=native"
+    export TF_NEED_JEMALLOC=1
+    export TF_NEED_GCP=0
+    export TF_NEED_HDFS=0
+    export TF_ENABLE_XLA=0
+    export TF_NEED_OPENCL=0
+    export TF_NEED_CUDA=1
+    export TF_CUDA_CLANG=0
+    export GCC_HOST_COMPILER_PATH=`which gcc`
+    export TF_CUDA_VERSION="7.5"
+    export CUDA_TOOLKIT_PATH="/usr/local/cuda"
+    export TF_CUDNN_VERSION="5"
+    export CUDNN_INSTALL_PATH=$CUDA_TOOLKIT_PATH
+    export TF_CUDA_COMPUTE_CAPABILITIES="3.5"
 
-    cd $BOOTSTRAP_PWD
+    # Java certs...
+    apt-get install ca-certificates-java
+    update-ca-certificates -f
+
+    cd $BOOTSTRAP_WORKDIR
     wget https://github.com/tensorflow/tensorflow/archive/v1.1.0-rc2.tar.gz -O tensorflow.tar.gz
     tar xf tensorflow.tar.gz
     mv tensorflow-1.1.0-rc2 tensorflow
     cd tensorflow
-    cp /configure_tensorflow_python2 .
+#    cp /configure_tensorflow_python2 .
     ./configure
 #    ./configure_tensorflow_python2
 
@@ -100,7 +100,7 @@
 
     pip install /tmp/tensorflow_pkg/tensorflow-*.whl
 
-    cd $BOOTSTRAP_PWD
+    cd $BOOTSTRAP_WORKDIR
     rm -rf tensorflow
     rm -rf /tmp/tensorflow_pkg
 
@@ -110,7 +110,7 @@
     tar xf tensorflow.tar.gz
     mv tensorflow-1.1.0-rc2 tensorflow
     cd tensorflow
-    cp /configure_tensorflow_python3 .
+#    cp /configure_tensorflow_python3 .
     ./configure
 #    ./configure_tensorflow_python3
 
@@ -119,7 +119,7 @@
 
     pip3 install /tmp/tensorflow_pkg/tensorflow-*.whl
 
-    cd $BOOTSTRAP_PWD
+    cd $BOOTSTRAP_WORKDIR
     rm -rf tensorflow
     rm -rf /tmp/tensorflow_pkg
 
@@ -149,3 +149,6 @@
     sleep 10
     pkill -f bazel*
     ps aux | grep bazel
+
+    # Remove tmp files used during bootstrap
+    rm -rf .bootstrap.post

@@ -24,8 +24,12 @@ From: ubuntu:zesty
   cp configure_tensorflow_python3 ${SINGULARITY_ROOTFS}
 
   # Create a directory in the mounted lustre directory to keep bootstrap files
-  mkdir -p ${SINGULARITY_ROOTFS}/`pwd`/.bootstrap.post
-  cp tensorflow.post ${SINGULARITY_ROOTFS}/`pwd`/.bootstrap.post
+  BOOTSTRAP_WORKDIR=`pwd`/.bootstrap.post
+  mkdir -p ${SINGULARITY_ROOTFS}/${BOOTSTRAP_WORKDIR}
+  cp tensorflow.post ${SINGULARITY_ROOTFS}/${BOOTSTRAP_WORKDIR}
+  if [ -e cuda_7.5.18_linux.run ]; then
+    cp cuda_7.5.18_linux.run ${SINGULARITY_ROOTFS}/${BOOTSTRAP_WORKDIR}
+  fi
 
   # Setup the environment to be sued in the container
   echo "" >> ${SINGULARITY_ROOTFS}/environment
@@ -36,7 +40,7 @@ From: ubuntu:zesty
   echo "export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> ${SINGULARITY_ROOTFS}/environment
   echo "export PROTOC=/usr/local/bin/protoc" >> ${SINGULARITY_ROOTFS}/environment
   echo "export GRPC_JAVA_PLUGIN=/usr/local/bin/protoc-gen-grpc-java" >> ${SINGULARITY_ROOTFS}/environment
-  echo "BOOTSTRAP_PWD"=`pwd` >> ${SINGULARITY_ROOTFS}/environment
+  echo "BOOTSTRAP_WORKDIR=${BOOTSTRAP_WORKDIR}" >> ${SINGULARITY_ROOTFS}/environment
 
   ####
   # Setup Cray MPI
@@ -53,7 +57,7 @@ From: ubuntu:zesty
 
 %post
   . /environment
-  cd $BOOTSTRAP_PWD/.bootstrap.post
+  cd $BOOTSTRAP_WORKDIR
   . ./tensorflow.post
 
 %runscript
