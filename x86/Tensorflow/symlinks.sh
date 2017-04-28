@@ -1,6 +1,7 @@
 #!/bin/bash
 
 ### Create symlinks between /opt/cray/nvidia/lib64/* and /usr/lib
+# sudo singularity exec -w ./symlinks.sh
 
 libs=(
     'libEGL.so'
@@ -28,30 +29,34 @@ libs=(
 )
 
 for lib in ${libs[@]}; do
-  ln -s /opt/cray/nvidia/lib64/${lib}.352.101 /usr/lib/${lib}.352.101
-  ln -s /usr/lib/${lib}.352.101 /usr/lib/${lib}.1
-  ln -s /usr/lib/${lib}.1 /usr/lib/${lib}
+  ln -nsf /opt/cray/nvidia/lib64/${lib}.352.101 /usr/lib/${lib}.352.101
+  ln -nsf /usr/lib/${lib}.352.101 /usr/lib/${lib}.1
+  ln -nsf /usr/lib/${lib}.1 /usr/lib/${lib}
   
 done
 
-ln -s /opt/cray/nvidia/lib64/libOpenCL.so.1.0.0 /usr/lib/libOpenCL.so.1.0.0
-ln -s /usr/lib/libOpenCL.so.1.0.0 /usr/lib/libOpenCL.so.1
-ln -s /usr/lib/libOpenCL.so.1 /usr/lib/libOpenCL.so 
+ln -nsf /opt/cray/nvidia/lib64/libOpenCL.so.1.0.0 /usr/lib/libOpenCL.so.1.0.0
+ln -nsf /usr/lib/libOpenCL.so.1.0.0 /usr/lib/libOpenCL.so.1
+ln -nsf /usr/lib/libOpenCL.so.1 /usr/lib/libOpenCL.so 
 
-ln -s /opt/cray/nvidia/lib64/libGLESv2.so.352.101 /usr/lib/libGLESv2.so.352.101
-ln -s /usr/lib/libGLESv2.so.352.101 /usr/lib/libGLESv2.so.2
-ln -s /usr/lib/libGLESv2.so.2 /usr/lib/libGLESv2.so
+ln -nsf /opt/cray/nvidia/lib64/libGLESv2.so.352.101 /usr/lib/libGLESv2.so.352.101
+ln -nsf /usr/lib/libGLESv2.so.352.101 /usr/lib/libGLESv2.so.2
+ln -nsf /usr/lib/libGLESv2.so.2 /usr/lib/libGLESv2.so
 
-ln -s /opt/cray/nvidia/lib64/nvidia_drv.so /usr/lib/nvidia_drv.so
-ln -s /opt/cray/nvidia/lib64/tls_test_dso.so /usr/lib/tls_test_dso.so
-mkdir /usr/lib/tls
-ln -s /opt/cray/nvidia/lib64/tls/libnvidia-tls.so.352.101 /usr/lib/tls/libnvidia-tls.so.352.101
+ln -nsf /opt/cray/nvidia/lib64/nvidia_drv.so /usr/lib/nvidia_drv.so
+ln -nsf /opt/cray/nvidia/lib64/tls_test_dso.so /usr/lib/tls_test_dso.so
+mkdir -p /usr/lib/tls
+ln -nsf /opt/cray/nvidia/lib64/tls/libnvidia-tls.so.352.101 /usr/lib/tls/libnvidia-tls.so.352.101
 
 ### Create symlinks between libmpi* and Cray's mpich
 mv /usr/lib/x86_64-linux-gnu/libmpich.so.12.1.0 /usr/lib/x86_64-linux-gnu/libmpich.so.12.1.0.original
 mv /usr/lib/x86_64-linux-gnu/libmpichcxx.so.12.1.0 /usr/lib/x86_64-linux-gnu/libmpichcxx.so.12.1.0.original
 mv /usr/lib/x86_64-linux-gnu/libmpichfort.so.12.1.0 /usr/lib/x86_64-linux-gnu/libmpichfort.so.12.1.0.original
 
-ln -s /opt/cray/mpt/7.5.2/gni/mpich-gnu/5.1/lib/libmpich.so /usr/lib/x86_64-linux-gnu/libmpich.so.12.1.0
-ln -s /opt/cray/mpt/7.5.2/gni/mpich-gnu/5.1/lib/libmpichcxx.so /usr/lib/x86_64-linux-gnu/libmpichcxx.so.12.1.0
-ln -s /opt/cray/mpt/7.5.2/gni/mpich-gnu/5.1/lib/libfmpich.so /usr/lib/x86_64-linux-gnu/libmpichfort.so.12.1.0
+ln -nsf /opt/cray/mpt/7.5.2/gni/mpich-gnu/5.1/lib/libmpich.so /usr/lib/x86_64-linux-gnu/libmpich.so.12.1.0
+ln -nsf /opt/cray/mpt/7.5.2/gni/mpich-gnu/5.1/lib/libmpichcxx.so /usr/lib/x86_64-linux-gnu/libmpichcxx.so.12.1.0
+ln -nsf /opt/cray/mpt/7.5.2/gni/mpich-gnu/5.1/lib/libfmpich.so /usr/lib/x86_64-linux-gnu/libmpichfort.so.12.1.0
+
+### Create symlinks between /opt/cray/nvidia/bin/* and /usr/bin
+ln -nsf /opt/cray/nvidia/bin/nvidia-debugdump  /usr/bin/nvidia-debugdump
+ln -nsf /opt/cray/nvidia/bin/nvidia-smi  /usr/bin/nvidia-smi
