@@ -124,11 +124,11 @@
     rm -rf /tmp/tensorflow_pkg
 
     # Change compilers back
-    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 50
-    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-6 51
+    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 51
+    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-6 50
     update-alternatives --auto gcc
-    update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50
-    update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-6 51
+    update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 51
+    update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-6 50
     update-alternatives --auto g++
 
     pip install keras
