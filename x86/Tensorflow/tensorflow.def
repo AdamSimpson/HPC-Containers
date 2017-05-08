@@ -40,6 +40,7 @@ From: ubuntu:zesty
   echo "export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> ${SINGULARITY_ROOTFS}/environment
   echo "export PROTOC=/usr/local/bin/protoc" >> ${SINGULARITY_ROOTFS}/environment
   echo "export GRPC_JAVA_PLUGIN=/usr/local/bin/protoc-gen-grpc-java" >> ${SINGULARITY_ROOTFS}/environment
+  echo "unset PYTHONSTARTUP >> ${SINGULARITY_ROOTFS}/environment
   echo "BOOTSTRAP_WORKDIR=${BOOTSTRAP_WORKDIR}" >> ${SINGULARITY_ROOTFS}/environment
 
   ####
