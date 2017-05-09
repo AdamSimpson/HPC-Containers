@@ -20,9 +20,6 @@ From: ubuntu:zesty
   mount --no-mtab --bind "/lustre/atlas1" "$SINGULARITY_ROOTFS/lustre/atlas1"
   mount --no-mtab --bind "/lustre/atlas2" "$SINGULARITY_ROOTFS/lustre/atlas2"
 
-  cp configure_tensorflow_python2 ${SINGULARITY_ROOTFS}
-  cp configure_tensorflow_python3 ${SINGULARITY_ROOTFS}
-
   # Create a directory in the mounted lustre directory to keep bootstrap files
   BOOTSTRAP_WORKDIR=`pwd`/.bootstrap.post
   mkdir -p ${SINGULARITY_ROOTFS}/${BOOTSTRAP_WORKDIR}
@@ -40,7 +37,7 @@ From: ubuntu:zesty
   echo "export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> ${SINGULARITY_ROOTFS}/environment
   echo "export PROTOC=/usr/local/bin/protoc" >> ${SINGULARITY_ROOTFS}/environment
   echo "export GRPC_JAVA_PLUGIN=/usr/local/bin/protoc-gen-grpc-java" >> ${SINGULARITY_ROOTFS}/environment
-  echo "unset PYTHONSTARTUP >> ${SINGULARITY_ROOTFS}/environment
+  echo "unset PYTHONSTARTUP" >> ${SINGULARITY_ROOTFS}/environment
   echo "BOOTSTRAP_WORKDIR=${BOOTSTRAP_WORKDIR}" >> ${SINGULARITY_ROOTFS}/environment
 
   ####
