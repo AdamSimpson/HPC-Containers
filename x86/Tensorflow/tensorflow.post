@@ -32,16 +32,6 @@
     export PERL5LIB=.
     sh cuda_7.5.18_linux.run --silent --toolkit --override
 
-#    export PERL5LIB=.
-#    sh ./cuda_7.5.18_linux.run --extract=`pwd`
-
-    # Manually copy over driver components
-#    sh NVIDIA-Linux-x86_64-352.39.run -x
-#    cp NVIDIA-Linux-x86_64-352.39/*.h /usr/include
-
-    # Install toolkit components
-#    sh cuda-linux64-rel-7.5.18-19867135.run -noprompt
-
     # Remove cuda bits
     cd $BOOTSTRAP_WORKDIR
     rm -rf CUDA_INSTALL
@@ -91,9 +81,7 @@
     tar xf tensorflow.tar.gz
     mv tensorflow-1.1.0-rc2 tensorflow
     cd tensorflow
-#    cp /configure_tensorflow_python2 .
     ./configure
-#    ./configure_tensorflow_python2
 
     bazel build -c opt --copt=-mavx --copt=-msse4.1 --copt=-msse4.2 --config=cuda tensorflow/tools/pip_package:build_pip_package
     bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
@@ -110,9 +98,7 @@
     tar xf tensorflow.tar.gz
     mv tensorflow-1.1.0-rc2 tensorflow
     cd tensorflow
-#    cp /configure_tensorflow_python3 .
     ./configure
-#    ./configure_tensorflow_python3
 
     bazel build -c opt --copt=-mavx --copt=-msse4.1 --copt=-msse4.2 --config=cuda tensorflow/tools/pip_package:build_pip_package
     bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg
@@ -123,7 +109,7 @@
     rm -rf tensorflow
     rm -rf /tmp/tensorflow_pkg
 
-    # Change compilers back
+    # Change compilers back to version which works with NVCC
     update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 51
     update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-6 50
     update-alternatives --auto gcc
