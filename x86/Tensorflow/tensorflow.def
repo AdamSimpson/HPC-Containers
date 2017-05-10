@@ -16,9 +16,12 @@ From: ubuntu:zesty
   mkdir -p ${SINGULARITY_ROOTFS}/lustre/atlas1
   mkdir -p ${SINGULARITY_ROOTFS}/lustre/atlas2
 
-  mount --no-mtab --bind "/lustre/atlas" "$SINGULARITY_ROOTFS/lustre/atlas"
-  mount --no-mtab --bind "/lustre/atlas1" "$SINGULARITY_ROOTFS/lustre/atlas1"
-  mount --no-mtab --bind "/lustre/atlas2" "$SINGULARITY_ROOTFS/lustre/atlas2"
+  # Manually mount lustre as its used as scratch on Titan
+  if [ -d /lustre/atlas ]
+    mount --no-mtab --bind "/lustre/atlas" "$SINGULARITY_ROOTFS/lustre/atlas"
+    mount --no-mtab --bind "/lustre/atlas1" "$SINGULARITY_ROOTFS/lustre/atlas1"
+    mount --no-mtab --bind "/lustre/atlas2" "$SINGULARITY_ROOTFS/lustre/atlas2"
+  fi
 
   # Create a directory in the mounted lustre directory to keep bootstrap files
   BOOTSTRAP_WORKDIR=`pwd`/.bootstrap.post
