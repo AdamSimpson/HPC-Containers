@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ### Create directories and symlinks between /opt/cray/nvidia/lib64/* and /usr/lib
-# sudo singularity exec -w ./Titanify.sh
+# sudo singularity exec -w ./TitanPrep.sh
 
 # Print commands executed
 set -x
