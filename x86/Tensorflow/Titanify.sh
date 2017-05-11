@@ -1,7 +1,22 @@
 #!/bin/bash
 
-### Create symlinks between /opt/cray/nvidia/lib64/* and /usr/lib
-# sudo singularity exec -w ./symlinks.sh
+### Create directories and symlinks between /opt/cray/nvidia/lib64/* and /usr/lib
+# sudo singularity exec -w ./Titanify.sh
+
+# Print commands executed
+set -x
+
+# Mount point for Cray files needed for MPI
+mkdir -p ${SINGULARITY_ROOTFS}/opt/cray
+
+# Mount point for Cray files needed for ALSP runtime
+mkdir -p ${SINGULARITY_ROOTFS}/var/spool/alps
+mkdir -p ${SINGULARITY_ROOTFS}/var/opt/cray
+
+# Mount point for lustre
+mkdir -p ${SINGULARITY_ROOTFS}/lustre/atlas
+mkdir -p ${SINGULARITY_ROOTFS}/lustre/atlas1
+mkdir -p ${SINGULARITY_ROOTFS}/lustre/atlas2
 
 # Expand full path, following symlink which isn't visible in container
 # note that root doesn't correctly see /etc/alternatives on Titan so we hardcode the current path
@@ -37,7 +52,6 @@ for lib in ${libs[@]}; do
   ln -nsf ${nvidia_path}/lib64/${lib}.352.101 /usr/lib/${lib}.352.101
   ln -nsf /usr/lib/${lib}.352.101 /usr/lib/${lib}.1
   ln -nsf /usr/lib/${lib}.1 /usr/lib/${lib}
-  
 done
 
 ln -nsf ${nvidia_path}/lib64/libOpenCL.so.1.0.0 /usr/lib/libOpenCL.so.1.0.0
@@ -54,13 +68,17 @@ mkdir -p /usr/lib/tls
 ln -nsf ${nvidia_path}/tls/libnvidia-tls.so.352.101 /usr/lib/tls/libnvidia-tls.so.352.101
 
 ### Create symlinks between libmpi* and Cray's mpich
-mv /usr/lib/x86_64-linux-gnu/libmpich.so.12.1.0 /usr/lib/x86_64-linux-gnu/libmpich.so.12.1.0.original
-mv /usr/lib/x86_64-linux-gnu/libmpichcxx.so.12.1.0 /usr/lib/x86_64-linux-gnu/libmpichcxx.so.12.1.0.original
-mv /usr/lib/x86_64-linux-gnu/libmpichfort.so.12.1.0 /usr/lib/x86_64-linux-gnu/libmpichfort.so.12.1.0.original
+c_mpich=`ldconfig -p | grep libmpich.so | awk '{print $4}'`
+cxx_mpich=`ldconfig -p | grep libmpichcxx.so | awk '{print $4}'`
+f_mpich=`ldconfig -p | grep libmpichfort.so | awk '{print $4}'`
 
-ln -nsf /opt/cray/mpt/7.5.2/gni/mpich-gnu/5.1/lib/libmpich.so /usr/lib/x86_64-linux-gnu/libmpich.so.12.1.0
-ln -nsf /opt/cray/mpt/7.5.2/gni/mpich-gnu/5.1/lib/libmpichcxx.so /usr/lib/x86_64-linux-gnu/libmpichcxx.so.12.1.0
-ln -nsf /opt/cray/mpt/7.5.2/gni/mpich-gnu/5.1/lib/libfmpich.so /usr/lib/x86_64-linux-gnu/libmpichfort.so.12.1.0
+mv ${c_mpich} ${c_mpich}.original
+mv ${cxx_mpich} ${cxx_mpich}.original
+mv ${f_mpich} ${f_mpich}.original
+
+ln -nsf /opt/cray/mpt/7.5.2/gni/mpich-gnu/5.1/lib/libmpich.so ${c_mpich}
+ln -nsf /opt/cray/mpt/7.5.2/gni/mpich-gnu/5.1/lib/libmpichcxx.so ${cxx_mpich}
+ln -nsf /opt/cray/mpt/7.5.2/gni/mpich-gnu/5.1/lib/libfmpich.so ${f_mpich}
 
 ### Create symlinks between /opt/cray/nvidia/bin/* and /usr/bin
 ln -nsf ${nvidia_path}/bin/nvidia-debugdump  /usr/bin/nvidia-debugdump

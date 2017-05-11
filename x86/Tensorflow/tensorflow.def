@@ -4,33 +4,6 @@ BootStrap: docker
 From: ubuntu:zesty
 
 %setup
-  # Mount point for Cray files needed for MPI
-  mkdir -p ${SINGULARITY_ROOTFS}/opt/cray
-
-  # Mount point for Cray files needed for ALSP runtime
-  mkdir -p ${SINGULARITY_ROOTFS}/var/spool/alps
-  mkdir -p ${SINGULARITY_ROOTFS}/var/opt/cray
-
-  # Mount lustre
-  mkdir -p ${SINGULARITY_ROOTFS}/lustre/atlas
-  mkdir -p ${SINGULARITY_ROOTFS}/lustre/atlas1
-  mkdir -p ${SINGULARITY_ROOTFS}/lustre/atlas2
-
-  # Manually mount lustre as its used as scratch on Titan
-  if [ -d /lustre/atlas ]
-    mount --no-mtab --bind "/lustre/atlas" "$SINGULARITY_ROOTFS/lustre/atlas"
-    mount --no-mtab --bind "/lustre/atlas1" "$SINGULARITY_ROOTFS/lustre/atlas1"
-    mount --no-mtab --bind "/lustre/atlas2" "$SINGULARITY_ROOTFS/lustre/atlas2"
-  fi
-
-  # Create a directory in the mounted lustre directory to keep bootstrap files
-  BOOTSTRAP_WORKDIR=`pwd`/.bootstrap.post
-  mkdir -p ${SINGULARITY_ROOTFS}/${BOOTSTRAP_WORKDIR}
-  cp tensorflow.post ${SINGULARITY_ROOTFS}/${BOOTSTRAP_WORKDIR}
-  if [ -e cuda_7.5.18_linux.run ]; then
-    cp cuda_7.5.18_linux.run ${SINGULARITY_ROOTFS}/${BOOTSTRAP_WORKDIR}
-  fi
-
   # Setup the environment to be sued in the container
   echo "" >> ${SINGULARITY_ROOTFS}/environment
   echo "export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/cuda/bin:/usr/lib/jvm/java-8-openjdk-amd64/bin" >> ${SINGULARITY_ROOTFS}/environment
@@ -59,7 +32,6 @@ From: ubuntu:zesty
 
 %post
   . /environment
-  cd $BOOTSTRAP_WORKDIR
   . ./tensorflow.post
 
 %runscript
