@@ -15,6 +15,7 @@ setenv TENSORFLOW_CONTAINER /autofs/nccs-svm1_sw/titan/tensorflow/tensorflow_x86
 setenv SYSUTILS_DEFAULT_DIR [exec readlink -f /opt/cray/sysutils/default]
 setenv WLM_DEFAULT_DIR [exec readlink -f /opt/cray/wlm_detect/default]
 setenv GNU_MPICH_LIB_DIR [exec readlink -f /opt/cray/mpt/default/gni/mpich-GNU/5.1/lib]
+setenv CRAY_NVIDIA_DRIVER_LIB_DIR [exec readlink -f /opt/cray/nvidia/default/lib64]
 
 #
 ##-- end
