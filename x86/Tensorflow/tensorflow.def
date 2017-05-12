@@ -7,14 +7,10 @@ From: ubuntu:zesty
   # Setup the environment to be sued in the container
   echo "" >> ${SINGULARITY_ROOTFS}/environment
   echo "export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/cuda/bin:/usr/lib/jvm/java-8-openjdk-amd64/bin" >> ${SINGULARITY_ROOTFS}/environment
-  echo "export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64:/usr/lib/nvidia" >> ${SINGULARITY_ROOTFS}/environment
+  echo "export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64" >> ${SINGULARITY_ROOTFS}/environment
   echo "export CUDA_HOME=/usr/local/cuda" >> ${SINGULARITY_ROOTFS}/environment
-  echo "export GRADLE_USER_HOME=${HOME}" >> ${SINGULARITY_ROOTFS}/environment
   echo "export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> ${SINGULARITY_ROOTFS}/environment
-  echo "export PROTOC=/usr/local/bin/protoc" >> ${SINGULARITY_ROOTFS}/environment
-  echo "export GRPC_JAVA_PLUGIN=/usr/local/bin/protoc-gen-grpc-java" >> ${SINGULARITY_ROOTFS}/environment
   echo "unset PYTHONSTARTUP" >> ${SINGULARITY_ROOTFS}/environment
-  echo "BOOTSTRAP_WORKDIR=${BOOTSTRAP_WORKDIR}" >> ${SINGULARITY_ROOTFS}/environment
 
   ####
   # Setup Cray MPI

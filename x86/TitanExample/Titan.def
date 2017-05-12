@@ -4,6 +4,10 @@ BootStrap: docker
 From: ubuntu:zesty
 
 %setup
+echo "export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/cuda/bin:/usr/lib/jvm/java-8-openjdk-amd64/bin" >> ${SINGULARITY_ROOTFS}/environment
+echo "export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64" >> ${SINGULARITY_ROOTFS}/environment
+
+%post
 # Install MPICH
 apt-get install -y mpich
 

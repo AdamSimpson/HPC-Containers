@@ -6,6 +6,30 @@
 # Print commands executed
 set -x
 
+echo "unset PYTHONSTARTUP" >> /environment
+
+####
+# Setup Cray MPI
+# These variables are expected to be set at container runtime(e.g. in the module file loading the container)
+# SYSUTILS_DEFAULT_DIR=`readlink -f /opt/cray/sysutils/default`
+# WLM_DEFAULT_DIR=`readlink -f /opt/cray/wlm_detect/default`
+# GNU_MPICH_LIB_DIR=`readlink -f /opt/cray/mpt/default/gni/mpich-GNU/5.1/lib`
+# CRAY_NVIDIA_DRIVER_LIB_DIR=`readlink -f /opt/cray/nvidia/default/lib64`
+####
+
+# Make sure Cray MPICH libraries are in container LD_LIBRARY_PATH
+echo "export LD_LIBRARY_PATH="'${GNU_MPICH_LIB_DIR}:${LD_LIBRARY_PATH}:${CRAY_LD_LIBRARY_PATH}:${SYSUTILS_DEFAULT_DIR}/lib64:${WLM_DEFAULT_DIR}/lib64'":/lib64:/usr/lib/x86_64-linux-gnu" >> /environment
+
+####
+# Setup Cray-NVIDIA driver lib/bins
+# These variables are expected to be set at container runtime(e.g. in the module file loading the container)
+# CRAY_NVIDIA_DRIVER_LIB_DIR=`readlink -f /opt/cray/nvidia/default/lib64`
+# CRAY_NVIDIA_DRIVER_BIN_DIR=`readlink -f /opt/cray/nvidia/default/bin`
+####
+echo "export LD_LIBRARY_PATH="'${LD_LIBRARY_PATH}:${CRAY_NVIDIA_DRIVER_LIB_DIR}' >> /environment
+echo "export PATH='$PATH:${CRAY_NVIDIA_DRIVER_BIN_DIR}'"
+
+
 # Mount point for Cray files needed for MPI
 mkdir -p ${SINGULARITY_ROOTFS}/opt/cray
 
