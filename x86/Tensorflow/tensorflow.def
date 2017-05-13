@@ -4,6 +4,8 @@ BootStrap: docker
 From: ubuntu:zesty
 
 %setup
+  cp tensorflow.post ${SINGULARITY_ROOTFS}
+
   # Setup the environment to be sued in the container
   echo "" >> ${SINGULARITY_ROOTFS}/environment
   echo "export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/cuda/bin:/usr/lib/jvm/java-8-openjdk-amd64/bin" >> ${SINGULARITY_ROOTFS}/environment

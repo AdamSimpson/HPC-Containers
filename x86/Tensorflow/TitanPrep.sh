@@ -43,9 +43,19 @@ mkdir -p ${SINGULARITY_ROOTFS}/lustre/atlas1
 mkdir -p ${SINGULARITY_ROOTFS}/lustre/atlas2
 
 ### Create symlinks between libmpi* and Cray's mpich
-c_mpich=`ldconfig -p | grep libmpich.so | awk '{print $4}'`
-cxx_mpich=`ldconfig -p | grep libmpichcxx.so | awk '{print $4}'`
-f_mpich=`ldconfig -p | grep libmpichfort.so | awk '{print $4}'`
+c_mpich=`ldconfig -p | grep libmpich.so | awk 'NR==1 {print $4}' | xargs readlink -f`
+cxx_mpich=`ldconfig -p | grep libmpichcxx.so | awk 'NR==1 {print $4}' | xargs readlink -f`
+f_mpich=`ldconfig -p | grep libmpichfort.so | awk 'NR1==1 {print $4}' | xargs readlink -f`
+
+if [ ! -f ${c_mpich} ]; then
+  echo "libmpich.so not found!"
+fi
+if [ ! -f ${cxx_mpich} ]; then
+echo "libmpichcxx.so not found!"
+fi
+if [ ! -f ${f_mpich} ]; then
+  echo "libmpichfort.so not found!"
+fi
 
 mv ${c_mpich} ${c_mpich}.original
 mv ${cxx_mpich} ${cxx_mpich}.original

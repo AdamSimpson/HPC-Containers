@@ -25,11 +25,7 @@ pip3 install --upgrade pip
 # Install CUDA toolkit and driver libraries/binaries
 
 # Check if we have downloaded a cached copy
-if [ -e cuda_7.5.18_linux.run ]; then
-  echo "Using cached CUDA toolkit"
-else
-  wget http://developer.download.nvidia.com/compute/cuda/7.5/Prod/local_installers/cuda_7.5.18_linux.run
-fi
+wget http://developer.download.nvidia.com/compute/cuda/7.5/Prod/local_installers/cuda_7.5.18_linux.run
 
 export PERL5LIB=.
 sh cuda_7.5.18_linux.run --silent --toolkit --override
