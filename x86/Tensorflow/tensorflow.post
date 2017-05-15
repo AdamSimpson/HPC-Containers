@@ -21,8 +21,8 @@ pip3 install --upgrade pip
 
 # Install CUDA toolkit and driver libraries/binaries
 
-# The CUDA toolkit version 7.5 requires gcc,g++/4.8 
-apt-get install -y gcc-4.8 g++-4.8
+# The CUDA toolkit version 7.5 requires gcc,g++/4.9
+apt-get install -y gcc-4.9 g++-4.9
 
 # Fetch cuda toolkit installer
 wget http://developer.download.nvidia.com/compute/cuda/7.5/Prod/local_installers/cuda_7.5.18_linux.run
@@ -41,9 +41,9 @@ chmod a+r /usr/local/cuda/include/cudnn.h /usr/local/cuda/lib64/libcudnn*
 rm -rf cuda_7.5.18_linux.run
 rm -rf cudnn-7.5-linux-x64-v5.1.tgz
 
-# Patch CUDA to use gcc/4.8
-ln -s /usr/bin/gcc-4.8 /usr/local/cuda/bin/gcc 
-ln -s /usr/bin/g++-4.8 /usr/local/cuda/bin/g++
+# Patch CUDA to use gcc/4.9
+ln -s /usr/bin/gcc-4.9 /usr/local/cuda/bin/gcc 
+ln -s /usr/bin/g++-4.9 /usr/local/cuda/bin/g++
 
 # Set CUDA related environment variables
 export CUDA_HOME=/usr/local/cuda
@@ -70,7 +70,7 @@ export TF_ENABLE_XLA=0
 export TF_NEED_OPENCL=0
 export TF_NEED_CUDA=1
 export TF_CUDA_CLANG=0
-export GCC_HOST_COMPILER_PATH=`which gcc`
+export GCC_HOST_COMPILER_PATH=/usr/bin/gcc-4.9
 export TF_CUDA_VERSION="7.5"
 export CUDA_TOOLKIT_PATH="/usr/local/cuda"
 export TF_CUDNN_VERSION="5"
@@ -130,9 +130,9 @@ pip install mpi4py
 pip3 install mpi4py
 
 # Persist environment variables
-echo "" >> ${SINGULARITY_ROOTFS}/environment
-echo "export PATH=${PATH}" >> ${SINGULARITY_ROOTFS}/environment
-echo "export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}" >> ${SINGULARITY_ROOTFS}/environment
+echo "" >> /environment
+echo "export PATH=${PATH}" >> /environment
+echo "export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}" >> /environment
 
 # Titan-ify the container
 /TitanPrep.sh
