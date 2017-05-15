@@ -18,7 +18,7 @@ echo "unset PYTHONSTARTUP" >> /environment
 ####
 
 # Make sure Cray MPICH libraries are in container LD_LIBRARY_PATH
-echo "export LD_LIBRARY_PATH="'${GNU_MPICH_LIB_DIR}:${LD_LIBRARY_PATH}:${CRAY_LD_LIBRARY_PATH}:${SYSUTILS_DEFAULT_DIR}/lib64:${WLM_DEFAULT_DIR}/lib64'":/lib64:/usr/lib/x86_64-linux-gnu" >> /environment
+echo "export LD_LIBRARY_PATH="'${GNU_MPICH_LIB_DIR}:${LD_LIBRARY_PATH}:${CRAY_LD_LIBRARY_PATH}:${SYSUTILS_DEFAULT_DIR}/lib64:${WLM_DEFAULT_DIR}/lib64' >> /environment
 
 ####
 # Setup Cray-NVIDIA driver lib/bins
@@ -31,21 +31,31 @@ echo "export PATH='$PATH:${CRAY_NVIDIA_DRIVER_BIN_DIR}'"
 
 
 # Mount point for Cray files needed for MPI
-mkdir -p ${SINGULARITY_ROOTFS}/opt/cray
+mkdir -p /opt/cray
 
 # Mount point for Cray files needed for ALSP runtime
-mkdir -p ${SINGULARITY_ROOTFS}/var/spool/alps
-mkdir -p ${SINGULARITY_ROOTFS}/var/opt/cray
+mkdir -p /var/spool/alps
+mkdir -p /var/opt/cray
 
 # Mount point for lustre
-mkdir -p ${SINGULARITY_ROOTFS}/lustre/atlas
-mkdir -p ${SINGULARITY_ROOTFS}/lustre/atlas1
-mkdir -p ${SINGULARITY_ROOTFS}/lustre/atlas2
+mkdir -p /lustre/atlas
+mkdir -p /lustre/atlas1
+mkdir -p /lustre/atlas2
 
 ### Create symlinks between libmpi* and Cray's mpich
-c_mpich=`ldconfig -p | grep libmpich.so | awk '{print $4}'`
-cxx_mpich=`ldconfig -p | grep libmpichcxx.so | awk '{print $4}'`
-f_mpich=`ldconfig -p | grep libmpichfort.so | awk '{print $4}'`
+c_mpich=`ldconfig -p | grep libmpich.so | awk 'NR==1 {print $4}' | xargs readlink -f`
+cxx_mpich=`ldconfig -p | grep libmpichcxx.so | awk 'NR==1 {print $4}' | xargs readlink -f`
+f_mpich=`ldconfig -p | grep libmpichfort.so | awk 'NR1==1 {print $4}' | xargs readlink -f`
+
+if [ ! -f ${c_mpich} ]; then
+  echo "libmpich.so not found!"
+fi
+if [ ! -f ${cxx_mpich} ]; then
+echo "libmpichcxx.so not found!"
+fi
+if [ ! -f ${f_mpich} ]; then
+  echo "libmpichfort.so not found!"
+fi
 
 mv ${c_mpich} ${c_mpich}.original
 mv ${cxx_mpich} ${cxx_mpich}.original

@@ -4,15 +4,19 @@ BootStrap: docker
 From: ubuntu:zesty
 
 %setup
-echo "export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/cuda/bin:/usr/lib/jvm/java-8-openjdk-amd64/bin" >> ${SINGULARITY_ROOTFS}/environment
-echo "export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64" >> ${SINGULARITY_ROOTFS}/environment
+# Copy TitanPrep.sh into container
+cp TitanPrep.sh ${SINGULARITY_ROOTFS}
 
 %post
+# Set PATH and LD_LIBRARY_PATH
+export PATH=/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/usr/lib/jvm/java-8-openjdk-amd64/bin
+export LD_LIBRARY_PATH=/usr/local/lib:/lib64/usr/lib/x86_64-linux-gnu
+
 # Install MPICH
 apt-get install -y mpich
 
 # Install GCC compatable with CUDA/7.5
-apt-get install -y gcc-4.8 g++-4.8
+apt-get install -y gcc-4.9 g++-4.9
 
 # Install the toolkit
 wget http://developer.download.nvidia.com/compute/cuda/7.5/Prod/local_installers/cuda_7.5.18_linux.run
@@ -20,6 +24,18 @@ export PERL5LIB=.
 sh cuda_7.5.18_linux.run --silent --toolkit --override
 rm cuda_7.5.18_linux.run
 
-# Patch toolkit to work with non system default GCC
-ln -s /usr/bin/gcc-4.8 /usr/local/cuda/bin/gcc
-ln -s /usr/bin/g++-4.8 /usr/local/cuda/bin/g++
+# Patch CUDA toolkit to work with non system default GCC
+ln -s /usr/bin/gcc-4.9 /usr/local/cuda/bin/gcc
+ln -s /usr/bin/g++-4.9 /usr/local/cuda/bin/g++
+
+# Install additional packages
+apt-get install -y python python-mpi4py
+
+# Persist PATH and LD_LIBRARY_PATH to container runtime
+echo "" >> /environment
+echo "export PATH=${PATH}" >> /environment
+echo "export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}" >> /environment
+
+# Patch container to work on Titan
+./TitanPrep.sh
+rm TitanPrep.sh
