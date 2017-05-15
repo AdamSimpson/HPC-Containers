@@ -1,8 +1,11 @@
 BOOTSTRAP_WORKDIR=`pwd`
 
-export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/usr/lib/jvm/java-8-openjdk-amd64/bin
+export PATH=/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/usr/lib/jvm/java-8-openjdk-amd64/bin
 export LD_LIBRARY_PATH=/usr/local/lib:/lib64/usr/lib/x86_64-linux-gnu
 export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+
+ls /usr/bin
+ls /bin
 
 apt-get update
 apt-get install -y software-properties-common
@@ -39,8 +42,8 @@ rm -rf cuda_7.5.18_linux.run
 rm -rf cudnn-7.5-linux-x64-v5.1.tgz
 
 # Patch CUDA to use gcc/4.8
-sudo ln -s /usr/bin/gcc-4.8 /usr/local/cuda/bin/gcc 
-sudo ln -s /usr/bin/g++-4.8 /usr/local/cuda/bin/g++
+ln -s /usr/bin/gcc-4.8 /usr/local/cuda/bin/gcc 
+ln -s /usr/bin/g++-4.8 /usr/local/cuda/bin/g++
 
 # Set CUDA related environment variables
 export CUDA_HOME=/usr/local/cuda
