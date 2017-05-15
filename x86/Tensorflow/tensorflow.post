@@ -1,5 +1,9 @@
 BOOTSTRAP_WORKDIR=`pwd`
 
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/usr/lib/jvm/java-8-openjdk-amd64/bin
+export LD_LIBRARY_PATH=/usr/local/lib:/lib64/usr/lib/x86_64-linux-gnu
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+
 apt-get update
 apt-get install -y software-properties-common
 apt-add-repository universe
@@ -121,6 +125,14 @@ apt-get install -y python3-theano
 # GCC/4.8 is too old to acept the compile flags required by mpi4py
 pip install mpi4py
 pip3 install mpi4py
+
+# Persist environment variables
+echo "" >> ${SINGULARITY_ROOTFS}/environment
+echo "export PATH=${PATH}" >> ${SINGULARITY_ROOTFS}/environment
+echo "export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}" >> ${SINGULARITY_ROOTFS}/environment
+
+# Titan-ify the container
+/TitanPrep.sh
 
 # Make sure bazel is shutdown so it doesn't stop singularity from cleanly exiting
 bazel shutdown

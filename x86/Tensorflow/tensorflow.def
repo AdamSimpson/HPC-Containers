@@ -5,15 +5,9 @@ From: ubuntu:zesty
 
 %setup
   cp tensorflow.post ${SINGULARITY_ROOTFS}
-
-  # Setup the environment to be sued in the container
-  echo "" >> ${SINGULARITY_ROOTFS}/environment
-  echo "export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/usr/lib/jvm/java-8-openjdk-amd64/bin" >> ${SINGULARITY_ROOTFS}/environment
-  echo "export LD_LIBRARY_PATH=/usr/local/lib:/lib64/usr/lib/x86_64-linux-gnu" >> ${SINGULARITY_ROOTFS}/environment
-  echo "export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64" >> ${SINGULARITY_ROOTFS}/environment
+  cp TitanPrep.sh ${SINGULARITY_ROOTFS}
 
 %post
-  . /environment
   . ./tensorflow.post
 
 %runscript
