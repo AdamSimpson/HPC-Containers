@@ -6,7 +6,9 @@
 # Print commands executed
 set -x
 
+# Don't pass these into the container
 echo "unset PYTHONSTARTUP" >> /environment
+echo "unset PKG_CONFIG_PATH" >> /environment
 
 ####
 # Setup Cray MPI
@@ -18,7 +20,7 @@ echo "unset PYTHONSTARTUP" >> /environment
 ####
 
 # Make sure Cray MPICH libraries are in container LD_LIBRARY_PATH
-echo "export LD_LIBRARY_PATH="'${GNU_MPICH_LIB_DIR}:${LD_LIBRARY_PATH}:${CRAY_LD_LIBRARY_PATH}:${SYSUTILS_DEFAULT_DIR}/lib64:${WLM_DEFAULT_DIR}/lib64' >> /environment
+echo 'export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${CRAY_LD_LIBRARY_PATH}:${SYSUTILS_DEFAULT_DIR}/lib64:${WLM_DEFAULT_DIR}/lib64' >> /environment
 
 ####
 # Setup Cray-NVIDIA driver lib/bins
@@ -26,8 +28,8 @@ echo "export LD_LIBRARY_PATH="'${GNU_MPICH_LIB_DIR}:${LD_LIBRARY_PATH}:${CRAY_LD
 # CRAY_NVIDIA_DRIVER_LIB_DIR=`readlink -f /opt/cray/nvidia/default/lib64`
 # CRAY_NVIDIA_DRIVER_BIN_DIR=`readlink -f /opt/cray/nvidia/default/bin`
 ####
-echo "export LD_LIBRARY_PATH="'${LD_LIBRARY_PATH}:${CRAY_NVIDIA_DRIVER_LIB_DIR}' >> /environment
-echo "export PATH='$PATH:${CRAY_NVIDIA_DRIVER_BIN_DIR}'"
+echo 'export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${CRAY_NVIDIA_DRIVER_LIB_DIR}' >> /environment
+echo 'export PATH=$PATH:${CRAY_NVIDIA_DRIVER_BIN_DIR}' >> /environment
 
 
 # Mount point for Cray files needed for MPI
