@@ -10,13 +10,14 @@ set appname tensorflow
 set machine titan
 set version 1.0.0
 
+if { ! [ is-loaded singularity ] } {
+  module load singularity
+}
+
 setenv TENSORFLOW_CONTAINER /autofs/nccs-svm1_sw/titan/tensorflow/tensorflow_x86.img
 
-setenv SYSUTILS_DEFAULT_DIR [exec readlink -f /opt/cray/sysutils/default]
-setenv WLM_DEFAULT_DIR [exec readlink -f /opt/cray/wlm_detect/default]
+# This can be removed when container is rebuilt against current TitanPrep.sh
 setenv GNU_MPICH_LIB_DIR [exec readlink -f /opt/cray/mpt/default/gni/mpich-GNU/5.1/lib]
-setenv CRAY_NVIDIA_DRIVER_LIB_DIR [exec readlink -f /opt/cray/nvidia/default/lib64]
-setenv CRAY_NVIDIA_DRIVER_BIN_DIR [exec readlink -f /opt/cray/nvidia/default/bin]
 
 #
 ##-- end
